@@ -14,7 +14,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_correct_initially()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 5, 6, 7, 0, 3, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 5, 6, 7, 0, 3, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 
@@ -30,7 +30,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_updated_after_Add()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 6, 7, 0, 3, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 6, 7, 0, 3, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 
@@ -70,7 +70,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_updated_after_Insert()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 
@@ -110,7 +110,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_updated_after_Move()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 
@@ -136,7 +136,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_updated_after_Remove()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 
@@ -168,7 +168,7 @@ namespace UnitTests
         [TestMethod]
         public void Result_is_updated_after_Replace()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 

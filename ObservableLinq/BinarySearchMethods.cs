@@ -8,17 +8,22 @@ namespace System.Linq
 {
     public static class BinarySearchMethods
     {
-        public static ItemPosition BinarySearch<TSource, TKey>(this IOrderedQueryableObservableCollection<TSource> @this, TKey key, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
+        public static ItemPosition BinarySearch<TSource, TKey>(this IList<TSource> @this, TKey key, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
         {
             return BinarySearch(@this, key, keySelector, comparer, false, 0, @this.Count);
         }
 
-        public static ItemPosition BinarySearch<TSource, TKey>(this IOrderedQueryableObservableCollection<TSource> @this, TKey key, Func<TSource, TKey> keySelector)
+        public static ItemPosition BinarySearch<TSource, TKey>(this IList<TSource> @this, TKey key, Func<TSource, TKey> keySelector)
         {
             return BinarySearch(@this, key, keySelector, Comparer<TKey>.Default);
         }
 
-        private static ItemPosition BinarySearch<TSource, TKey>(IOrderedQueryableObservableCollection<TSource> @this, TKey key, Func<TSource, TKey> keySelector, IComparer<TKey> comparer, bool descending, int start, int count)
+        public static ItemPosition BinarySearch<T>(this IList<T> @this, T key)
+        {
+            return BinarySearch(@this, key, x => x, Comparer<T>.Default);
+        }
+
+        private static ItemPosition BinarySearch<TSource, TKey>(IList<TSource> @this, TKey key, Func<TSource, TKey> keySelector, IComparer<TKey> comparer, bool descending, int start, int count)
         {
             if (count <= 0) return new ItemPosition(start - 1, 1);
 

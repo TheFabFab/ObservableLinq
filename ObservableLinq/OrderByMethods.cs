@@ -82,7 +82,7 @@ namespace System.Linq
                 foreach (var item in e.NewItems.OfType<TSource>())
                 {
                     var position = this.BinarySearch(_keySelector(item), _keySelector);
-                    Insert(position.GetNewIndex(), item);
+                    Insert(position.GetInsertionIndex(), item);
                 }
             }
 
@@ -123,7 +123,7 @@ namespace System.Linq
                 foreach (var item in e.NewItems.OfType<TSource>())
                 {
                     var position = this.BinarySearch(_keySelector(item), _keySelector);
-                    Insert(position.GetNewIndex(), item);
+                    Insert(position.GetInsertionIndex(), item);
                 }
             }
 

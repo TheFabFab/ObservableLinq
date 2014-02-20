@@ -14,7 +14,7 @@ namespace UnitTests
         [TestMethod]
         public void Find_element()
         {
-            var subject = new ObservableCollection<int>(new int[] { 1, 2, 6, 6, 7, 0, 3, 4 });
+            var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 6, 7, 0, 3, 4 });
 
             var result = subject.ToQueryable().OrderBy(i => i);
 

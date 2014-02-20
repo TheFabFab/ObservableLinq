@@ -32,12 +32,24 @@ namespace System.Linq
         {
             private readonly IEqualityComparer<T> _comparer;
             private readonly IQueryableObservableCollection<T> _source;
+            private readonly IList<int> _index;
 
             public DistinctObservableCollection(IQueryableObservableCollection<T> source, IEqualityComparer<T> comparer)
-                : base(source, ((IEnumerable<T>)source).Distinct(comparer))
+                : base(source)
             {
                 _source = source;
-                _comparer = comparer;
+                _comparer = comparer ?? EqualityComparer<T>.Default;
+                _index = new List<int>();
+
+                for (int index = 0; index < source.Count; index++)
+                {
+                    T item = source[index];
+                    if (!this.Contains(item, comparer))
+                    {
+                        _index.Add(index);
+                        Add(item);
+                    }
+                }
             }
 
             public DistinctObservableCollection(IQueryableObservableCollection<T> source)
@@ -49,12 +61,31 @@ namespace System.Linq
             {
                 base.UpdateOnAdd(e);
 
+                var indexInSource = e.NewStartingIndex;
+
                 foreach (var item in e.NewItems.OfType<T>())
                 {
-                    if (!this.Contains(item))
-                    {
-                        Add(item);
-                    }
+                    UpdateOnInsert(indexInSource, item);
+
+                    indexInSource++;
+                }
+            }
+
+            private void UpdateOnInsert(int indexInSource, T item)
+            {
+                var indexInTarget = _index.BinarySearch(indexInSource).GetInsertionIndex();
+                int currentIndex = IndexOf(item);
+
+                if (currentIndex == -1)
+                {
+                    Insert(indexInTarget, item);
+                    _index.Insert(indexInTarget, indexInSource);
+                }
+                else if (indexInTarget < currentIndex)
+                {
+                    _index.Remove(currentIndex);
+                    Move(currentIndex, indexInTarget);
+                    _index.Insert(indexInTarget, indexInSource);
                 }
             }
 
@@ -62,13 +93,91 @@ namespace System.Linq
             {
                 base.UpdateOnRemove(e);
 
+                var indexInSource = e.OldStartingIndex;
+
                 foreach (var item in e.OldItems.OfType<T>())
                 {
-                    if (!_source.Contains(item))
+                    UpdateOnRemove(indexInSource, item);
+
+                    indexInSource++;
+                }
+            }
+
+            private void UpdateOnRemove(int indexInSource, T item)
+            {
+                var indexInTarget = _index.BinarySearch(indexInSource).GetInsertionIndex();
+
+                int newIndexInSource =
+                    _source
+                    .Skip(indexInSource + 1)
+                    .Select((x, index) => new { Item = x, Index = indexInSource + 1 + index })
+                    .Where(x => _comparer.Equals(x.Item, item))
+                    .Select(x => x.Index)
+                    .DefaultIfEmpty(-1)
+                    .First();
+
+                if (newIndexInSource == -1)
+                {
+                    RemoveAt(indexInTarget);
+                    _index.RemoveAt(indexInTarget);
+                }
+                else
+                {
+                    _index.RemoveAt(indexInTarget);
+                    var newIndexInTarget = _index.BinarySearch(newIndexInSource).GetInsertionIndex();
+
+                    Move(indexInTarget, newIndexInTarget);
+                    _index.Insert(newIndexInTarget, newIndexInSource);
+                }
+            }
+
+            protected override void UpdateOnReplace(Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            {
+                base.UpdateOnReplace(e);
+
+                for (int indexInEvent = 0; indexInEvent < e.NewItems.Count; indexInEvent++)
+                {
+                    int indexInSource = e.NewStartingIndex + indexInEvent;
+
+                    var oldItem = (T)e.OldItems[indexInEvent];
+                    var newItem = (T)e.NewItems[indexInEvent];
+
+                    if (!_comparer.Equals(oldItem, newItem))
                     {
-                        Remove(item);
+                        UpdateOnRemove(indexInSource, oldItem);
+                        UpdateOnInsert(indexInSource, newItem);
                     }
                 }
+            }
+
+            protected override void UpdateOnMove(Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            {
+                base.UpdateOnMove(e);
+
+                for (int indexInEvent = 0; indexInEvent < e.NewItems.Count; indexInEvent++)
+                {
+                    var item = (T)e.NewItems[indexInEvent];
+
+                    int oldIndexInTarget = IndexOf(item);
+                    int newIndexInSource = _source.IndexOf(item);
+                    int newIndexInTarget = _index.BinarySearch(newIndexInSource).GetInsertionIndex();
+
+                    System.Diagnostics.Debug.Assert(newIndexInSource != -1);
+
+                    if (newIndexInTarget < oldIndexInTarget)
+                    {
+                        _index.RemoveAt(oldIndexInTarget);
+                        Move(oldIndexInTarget, newIndexInTarget);
+                        _index.Insert(newIndexInTarget, newIndexInSource);
+                    }
+                }
+            }
+
+            protected override void UpdateOnReset(Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            {
+                base.UpdateOnReset(e);
+
+                Clear();
             }
         }
     }

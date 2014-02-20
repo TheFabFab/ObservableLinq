@@ -45,6 +45,7 @@
     <Compile Include="DerivedObservableCollection.cs" />
     <Compile Include="SelectMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RewindMethods.cs" />
     <Compile Include="WhereMethods.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

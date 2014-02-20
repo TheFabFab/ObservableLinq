@@ -15,6 +15,11 @@ namespace System.Linq
         {
             source.CollectionChanged += source_CollectionChanged;
         }
+        
+        public DerivedObservableCollection(IQueryableObservableCollection<TSource> source)
+            : this(source, new TResult[]{})
+        {
+        }
 
         private void source_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {

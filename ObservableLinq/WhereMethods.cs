@@ -85,7 +85,7 @@ namespace System.Linq
 
                 foreach (var moved in items)
                 {
-                    this.Move(oldDestinationPosition.GetNewIndex() + moved.Index, newDestinationPosition.GetNewIndex() + moved.Index);
+                    this.Move(oldDestinationPosition.GetInsertionIndex() + moved.Index, newDestinationPosition.GetInsertionIndex() + moved.Index);
                 }
             }
 

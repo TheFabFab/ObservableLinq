@@ -113,7 +113,7 @@ namespace System.Linq
             get { return _wrappedCollection.Count; }
         }
 
-        int IList<T>.IndexOf(T item)
+        public int IndexOf(T item)
         {
             return _wrappedCollection.IndexOf(item);
         }

@@ -17,7 +17,7 @@ namespace System.Linq
             Offset = offset;
         }
 
-        public int GetNewIndex()
+        public int GetInsertionIndex()
         {
             return Index + Math.Min(1, Offset);
         }
