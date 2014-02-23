@@ -32,24 +32,12 @@ namespace System.Linq
         {
             private readonly IEqualityComparer<T> _comparer;
             private readonly IQueryableObservableCollection<T> _source;
-            private readonly IList<int> _index;
 
             public DistinctObservableCollection(IQueryableObservableCollection<T> source, IEqualityComparer<T> comparer)
-                : base(source)
+                : base(source, ((IEnumerable<T>)source).Distinct(comparer))
             {
                 _source = source;
                 _comparer = comparer ?? EqualityComparer<T>.Default;
-                _index = new List<int>();
-
-                for (int index = 0; index < source.Count; index++)
-                {
-                    T item = source[index];
-                    if (!this.Contains(item, comparer))
-                    {
-                        _index.Add(index);
-                        Add(item);
-                    }
-                }
             }
 
             public DistinctObservableCollection(IQueryableObservableCollection<T> source)
@@ -65,27 +53,57 @@ namespace System.Linq
 
                 foreach (var item in e.NewItems.OfType<T>())
                 {
-                    UpdateOnInsert(indexInSource, item);
+                    UpdateOnInsert(_source.Rewind(e), indexInSource, item);
 
                     indexInSource++;
                 }
             }
 
-            private void UpdateOnInsert(int indexInSource, T item)
+            private void UpdateOnInsert(IReadOnlyList<T> originalSource, int newSourceIndex, T item)
             {
-                var indexInTarget = _index.BinarySearch(indexInSource).GetInsertionIndex();
-                int currentIndex = IndexOf(item);
+                int originalSourceIndex = 0;
+                int sourceIndex = 0;
+                int targetIndex = 0;
+                int firstSourceIndex = -1;
+                
+                int newTargetIndex = -1;
+                int oldTargetIndex = -1;
 
-                if (currentIndex == -1)
+                while (sourceIndex < _source.Count)
                 {
-                    Insert(indexInTarget, item);
-                    _index.Insert(indexInTarget, indexInSource);
+                    if (sourceIndex == newSourceIndex + 1)
+                    {
+                        originalSourceIndex--;
+                    }
+                    else if (oldTargetIndex == -1 && originalSourceIndex < originalSource.Count && _comparer.Equals(originalSource[originalSourceIndex], item))
+                    {
+                        oldTargetIndex = targetIndex;
+                    }
+
+                    if (firstSourceIndex == -1 && _comparer.Equals(_source[sourceIndex], item))
+                    {
+                        firstSourceIndex = sourceIndex;
+                        newTargetIndex = targetIndex;
+                    }
+
+                    if (targetIndex < this.Count && _comparer.Equals(_source[sourceIndex], this[targetIndex]))
+                    {
+                        targetIndex++;
+                    }
+
+                    sourceIndex++;
+                    originalSourceIndex++;
                 }
-                else if (indexInTarget < currentIndex)
+
+                System.Diagnostics.Debug.Assert(newTargetIndex != -1);
+
+                if (oldTargetIndex == -1)
                 {
-                    _index.Remove(currentIndex);
-                    Move(currentIndex, indexInTarget);
-                    _index.Insert(indexInTarget, indexInSource);
+                    Insert(newTargetIndex, item);
+                }
+                else if (newTargetIndex < oldTargetIndex)
+                {
+                    Move(oldTargetIndex, newTargetIndex);
                 }
             }
 
@@ -97,37 +115,55 @@ namespace System.Linq
 
                 foreach (var item in e.OldItems.OfType<T>())
                 {
-                    UpdateOnRemove(indexInSource, item);
+                    UpdateOnRemove(_source.Rewind(e), indexInSource, item);
 
                     indexInSource++;
                 }
             }
 
-            private void UpdateOnRemove(int indexInSource, T item)
+            private void UpdateOnRemove(IReadOnlyList<T> originalSource, int oldSourceIndex, T item)
             {
-                var indexInTarget = _index.BinarySearch(indexInSource).GetInsertionIndex();
+                int targetIndex = 0;
+                int firstSourceIndex = -1;
 
-                int newIndexInSource =
-                    _source
-                    .Skip(indexInSource + 1)
-                    .Select((x, index) => new { Item = x, Index = indexInSource + 1 + index })
-                    .Where(x => _comparer.Equals(x.Item, item))
-                    .Select(x => x.Index)
-                    .DefaultIfEmpty(-1)
-                    .First();
+                int newTargetIndex = -1;
+                int oldTargetIndex = -1;
 
-                if (newIndexInSource == -1)
+                for (int index = 0; index < originalSource.Count; index++)
                 {
-                    RemoveAt(indexInTarget);
-                    _index.RemoveAt(indexInTarget);
+                    int sourceIndex = index < oldSourceIndex ? index : index - 1;
+                    int originalSourceIndex = index;
+
+                    if (firstSourceIndex == -1 && 
+                        sourceIndex > -1 &&
+                        _comparer.Equals(_source[sourceIndex], item))
+                    {
+                        firstSourceIndex = sourceIndex;
+                        newTargetIndex = targetIndex;
+                    }
+
+                    if (targetIndex < this.Count && 
+                        sourceIndex > -1 &&
+                        _comparer.Equals(_source[sourceIndex], this[targetIndex]))
+                    {
+                        targetIndex++;
+                    }
+
+                    if (index == oldSourceIndex)
+                    {
+                        oldTargetIndex = targetIndex;
+                        targetIndex++;
+                    }
+                }
+
+                System.Diagnostics.Debug.Assert(oldTargetIndex != -1);
+                if (newTargetIndex == -1)
+                {
+                    RemoveAt(oldTargetIndex);
                 }
                 else
                 {
-                    _index.RemoveAt(indexInTarget);
-                    var newIndexInTarget = _index.BinarySearch(newIndexInSource).GetInsertionIndex();
-
-                    Move(indexInTarget, newIndexInTarget);
-                    _index.Insert(newIndexInTarget, newIndexInSource);
+                    Move(oldTargetIndex, newTargetIndex - 1);
                 }
             }
 
@@ -144,9 +180,72 @@ namespace System.Linq
 
                     if (!_comparer.Equals(oldItem, newItem))
                     {
-                        UpdateOnRemove(indexInSource, oldItem);
-                        UpdateOnInsert(indexInSource, newItem);
+                        UpdateOnReplace(_source.Rewind(e), indexInSource, newItem, oldItem);
                     }
+                }
+            }
+
+            private void UpdateOnReplace(IReadOnlyList<T> originalSource, int sourceIndexOfItem, T newItem, T oldItem)
+            {
+                int targetIndex = 0;
+
+                int newTargetIndexForNewItem = -1;
+                int oldTargetIndexForNewItem = -1;
+
+                int newTargetIndexForOldItem = -1;
+                int oldTargetIndexForOldItem = -1;
+
+                for (int sourceIndex = 0; sourceIndex < originalSource.Count; sourceIndex++)
+                {
+                    if (newTargetIndexForNewItem == -1 &&
+                        _comparer.Equals(_source[sourceIndex], newItem))
+                    {
+                        newTargetIndexForNewItem = targetIndex;
+                    }
+
+                    if (newTargetIndexForOldItem == -1 &&
+                        _comparer.Equals(_source[sourceIndex], oldItem))
+                    {
+                        newTargetIndexForOldItem = targetIndex;
+                    }
+
+                    if (oldTargetIndexForOldItem == -1 &&
+                        _comparer.Equals(originalSource[sourceIndex], oldItem))
+                    {
+                        oldTargetIndexForOldItem = targetIndex;
+                    }
+
+                    if (oldTargetIndexForNewItem == -1 &&
+                        _comparer.Equals(originalSource[sourceIndex], newItem))
+                    {
+                        oldTargetIndexForNewItem = targetIndex;
+                    }
+
+                    if (targetIndex < this.Count &&
+                        _comparer.Equals(originalSource[sourceIndex], this[targetIndex]))
+                    {
+                        targetIndex++;
+                    }
+                }
+
+                System.Diagnostics.Debug.Assert(oldTargetIndexForOldItem > -1);
+
+                if (newTargetIndexForOldItem == -1)
+                {
+                    RemoveAt(oldTargetIndexForOldItem);
+                }
+                else
+                {
+                    Move(oldTargetIndexForOldItem, newTargetIndexForOldItem - 1);
+                }
+
+                if (oldTargetIndexForNewItem == -1)
+                {
+                    Insert(newTargetIndexForNewItem, newItem);
+                }
+                else if (oldTargetIndexForNewItem > newTargetIndexForOldItem)
+                {
+                    Move(oldTargetIndexForNewItem + 1, newTargetIndexForNewItem);
                 }
             }
 
@@ -156,20 +255,49 @@ namespace System.Linq
 
                 for (int indexInEvent = 0; indexInEvent < e.NewItems.Count; indexInEvent++)
                 {
-                    var item = (T)e.NewItems[indexInEvent];
+                    int newIndexInSource = e.NewStartingIndex + indexInEvent;
+                    int oldIndexInSource = e.OldStartingIndex + indexInEvent;
 
-                    int oldIndexInTarget = IndexOf(item);
-                    int newIndexInSource = _source.IndexOf(item);
-                    int newIndexInTarget = _index.BinarySearch(newIndexInSource).GetInsertionIndex();
+                    var item = (T)e.OldItems[indexInEvent];
 
-                    System.Diagnostics.Debug.Assert(newIndexInSource != -1);
+                    UpdateOnMove(_source.Rewind(e), newIndexInSource, oldIndexInSource, item);
+                }
+            }
 
-                    if (newIndexInTarget < oldIndexInTarget)
+            private void UpdateOnMove(IReadOnlyList<T> originalSource, int sourceIndexOfNewItem, int sourceIndexOfOldItem, T item)
+            {
+                int targetIndex = 0;
+
+                int newTargetIndexForItem = -1;
+                int oldTargetIndexForItem = -1;
+
+                for (int sourceIndex = 0; sourceIndex < originalSource.Count; sourceIndex++)
+                {
+                    if (newTargetIndexForItem == -1 &&
+                        _comparer.Equals(_source[sourceIndex], item))
                     {
-                        _index.RemoveAt(oldIndexInTarget);
-                        Move(oldIndexInTarget, newIndexInTarget);
-                        _index.Insert(newIndexInTarget, newIndexInSource);
+                        newTargetIndexForItem = targetIndex;
                     }
+
+                    if (oldTargetIndexForItem == -1 &&
+                        _comparer.Equals(originalSource[sourceIndex], item))
+                    {
+                        oldTargetIndexForItem = targetIndex;
+                    }
+
+                    if (targetIndex < this.Count &&
+                        _comparer.Equals(originalSource[sourceIndex], this[targetIndex]))
+                    {
+                        targetIndex++;
+                    }
+                }
+
+                System.Diagnostics.Debug.Assert(newTargetIndexForItem > -1);
+                System.Diagnostics.Debug.Assert(oldTargetIndexForItem > -1);
+
+                if (newTargetIndexForItem != oldTargetIndexForItem)
+                {
+                    Move(oldTargetIndexForItem, newTargetIndexForItem);
                 }
             }
 

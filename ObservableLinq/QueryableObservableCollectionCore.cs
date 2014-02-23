@@ -108,7 +108,7 @@ namespace System.Linq
             }
         }
 
-        int IObservableCollection<T>.Count
+        public int Count
         {
             get { return _wrappedCollection.Count; }
         }
