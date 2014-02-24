@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace System.Linq
 {
-    internal class DerivedObservableCollection<TSource, TResult> : QueryableObservableCollectionCore<TResult>
+    internal class DerivedObservableCollection<TSource, TResult> : ReadOnlyObservableCollection<TResult>
     {
         public DerivedObservableCollection(IQueryableObservableCollection<TSource> source, IEnumerable<TResult> collection)
             : base(collection)

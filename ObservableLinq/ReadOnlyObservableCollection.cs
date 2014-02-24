@@ -9,20 +9,25 @@ using System.Threading.Tasks;
 
 namespace System.Linq
 {
-    internal class QueryableObservableCollectionCore<T> : IQueryableObservableCollection<T>
+    public class ReadOnlyObservableCollection<T> : IQueryableObservableCollection<T>
     {
         private readonly ObservableCollection<T> _wrappedCollection;
         private int _notificationsLockCount;
 
-        public QueryableObservableCollectionCore(ObservableCollection<T> wrappedCollection)
+        public ReadOnlyObservableCollection(ObservableCollection<T> wrappedCollection)
         {
             _wrappedCollection = wrappedCollection;
             _wrappedCollection.CollectionChanged += _wrappedCollection_CollectionChanged;
             ((INotifyPropertyChanged)_wrappedCollection).PropertyChanged += QueryableObservableCollectionCore_PropertyChanged;
         }
 
-        public QueryableObservableCollectionCore(IEnumerable<T> collection)
+        public ReadOnlyObservableCollection(IEnumerable<T> collection)
             : this(new ObservableCollection<T>(collection))
+        {
+        }
+
+        public ReadOnlyObservableCollection()
+            : this(new ObservableCollection<T>())
         {
         }
 
@@ -274,9 +279,9 @@ namespace System.Linq
 
         private class NotificationLock : IDisposable
         {
-            private readonly QueryableObservableCollectionCore<T> _parent;
+            private readonly ReadOnlyObservableCollection<T> _parent;
 
-            public NotificationLock(QueryableObservableCollectionCore<T> parent)
+            public NotificationLock(ReadOnlyObservableCollection<T> parent)
             {
                 _parent = parent;
             }

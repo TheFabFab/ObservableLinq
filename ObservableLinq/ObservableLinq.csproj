@@ -40,8 +40,9 @@
     <Compile Include="DistinctMethods.cs" />
     <Compile Include="IQueryableObservableCollection.cs" />
     <Compile Include="ItemPosition.cs" />
+    <Compile Include="ObserverCollection.cs" />
     <Compile Include="OrderByMethods.cs" />
-    <Compile Include="QueryableObservableCollectionCore.cs" />
+    <Compile Include="ReadOnlyObservableCollection.cs" />
     <Compile Include="DerivedObservableCollection.cs" />
     <Compile Include="SelectMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

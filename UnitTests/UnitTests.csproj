@@ -54,6 +54,7 @@
     <Compile Include="BinarySearchTest.cs" />
     <Compile Include="DistinctTests.cs" />
     <Compile Include="EnumerableAssert.cs" />
+    <Compile Include="ObserverCollectionTests.cs" />
     <Compile Include="OrderByTests.cs" />
     <Compile Include="SelectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

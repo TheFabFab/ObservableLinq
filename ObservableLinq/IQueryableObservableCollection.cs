@@ -38,7 +38,7 @@ namespace System.Linq
     {
         public static IQueryableObservableCollection<T> ToQueryable<T>(this ObservableCollection<T> @this)
         {
-            return new QueryableObservableCollectionCore<T>(@this);
+            return new ReadOnlyObservableCollection<T>(@this);
         }
     }
 }
