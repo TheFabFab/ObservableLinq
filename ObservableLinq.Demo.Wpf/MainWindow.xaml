@@ -1,0 +1,22 @@
+﻿<Window x:Class="ObservableLinq.Demo.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:rlb="clr-namespace:ObservableLinq.Demo.Wpf"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <rlb:ReorderListBox ItemsSource="{Binding Collection}" IsReorderEnabled="True">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="DarkGray"  
+                            Width="50"
+                            BorderThickness="1"
+                            Background="Yellow"
+                            Margin="5"
+                            Padding="5">
+                        <TextBlock Text="{Binding}" />
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </rlb:ReorderListBox>
+    </Grid>
+</Window>
