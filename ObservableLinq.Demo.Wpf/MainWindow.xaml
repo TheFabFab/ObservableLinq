@@ -92,7 +92,7 @@
         <ListBox ItemsSource="{Binding Collection}"
                  Grid.Column="1"
                  Grid.Row="2"
-                 Margin="0,0,25,0"
+                 Margin="0,0,50,0"
                  dd:DragDrop.IsDragSource="True"
                  HorizontalAlignment="Left"
                  dd:DragDrop.IsDropTarget="True"
@@ -109,12 +109,12 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Width="80">
                         <Grid.RowDefinitions>
                             <RowDefinition SharedSizeGroup="Top" Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding DisplayText}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" />
+                        <TextBlock TextWrapping="Wrap" Text="{Binding DisplayText}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" />
                         <ItemsControl ItemsSource="{Binding Expression}" Grid.Row="1" />
                     </Grid>
                 </DataTemplate>
