@@ -1,22 +1,149 @@
-﻿<Window x:Class="ObservableLinq.Demo.Wpf.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:rlb="clr-namespace:ObservableLinq.Demo.Wpf"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <rlb:ReorderListBox ItemsSource="{Binding Collection}" IsReorderEnabled="True">
-            <ListBox.ItemTemplate>
+﻿<Controls:MetroWindow x:Class="ObservableLinq.Demo.Wpf.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      mc:Ignorable="d"
+                      xmlns:local="clr-namespace:ObservableLinq.Demo.Wpf"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
+                      xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+                      Title="MainWindow"
+                      d:DataContext="{d:DesignData Type={x:Type local:MainViewModel}}"
+                      WindowState="Maximized">
+    <Grid Margin="15" Grid.IsSharedSizeScope="True">
+        <Grid.Resources>
+            <Style TargetType="Border" x:Key="PostItBorder">
+                <Setter Property="BorderBrush" Value="DarkGray" />
+                <Setter Property="Width" Value="50" />
+                <Setter Property="Height" Value="40" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Background" Value="Yellow" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Padding" Value="5" />
+            </Style>
+            
+            <Style TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+            </Style>
+            
+            <Style TargetType="ItemsControl">
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PostItBorder}">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
+                            </Border>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="ListBox">
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PostItBorder}">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
+                            </Border>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition SharedSizeGroup="Top" Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="New item" HorizontalAlignment="Center" FontSize="20" FontStyle="Oblique" Grid.Row="0" />
+        
+        <Border dd:DragDrop.IsDragSource="True" 
+                dd:DragDrop.DragHandler="{Binding}" 
+                dd:DragDrop.UseDefaultEffectDataTemplate="True"
+                dd:DragDrop.UseDefaultDragAdorner="True"
+                Grid.Column="1"
+                Grid.Row="0"
+                Style="{StaticResource PostItBorder}">
+            <TextBox Background="{x:Null}" 
+                     Text="{Binding NewItemValue}"
+                     BorderThickness="0" 
+                     VerticalAlignment="Center" 
+                     TextAlignment="Center" 
+                     HorizontalAlignment="Center" />
+        </Border>
+
+        <Rectangle Height="3" Stroke="Black" StrokeThickness="3" Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Top" Margin="5,0,5,0" />
+        
+        <TextBlock Text="Source" HorizontalAlignment="Center" FontSize="20" FontStyle="Oblique" Grid.Row="2" />
+        
+        <ListBox ItemsSource="{Binding Collection}"
+                 Grid.Column="1"
+                 Grid.Row="2"
+                 Margin="0,0,25,0"
+                 dd:DragDrop.IsDragSource="True"
+                 HorizontalAlignment="Left"
+                 dd:DragDrop.IsDropTarget="True"
+                 dd:DragDrop.UseDefaultEffectDataTemplate="True"
+                 dd:DragDrop.UseDefaultDragAdorner="True" />
+        
+        <ItemsControl ItemsSource="{Binding DataOptions}"
+                      Grid.Column="2"
+                      Grid.RowSpan="3">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="DarkGray"  
-                            Width="50"
-                            BorderThickness="1"
-                            Background="Yellow"
-                            Margin="5"
-                            Padding="5">
-                        <TextBlock Text="{Binding}" />
-                    </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition SharedSizeGroup="Top" Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding DisplayText}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" />
+                        <ItemsControl ItemsSource="{Binding Expression}" Grid.Row="1" />
+                    </Grid>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </rlb:ReorderListBox>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        
+        <ItemsControl ItemsSource="{Binding Observer}"
+                      Margin="50,0,0,0"
+                      Grid.Column="3"
+                      Grid.Row="2" />
+        
+        <ListBox ItemsSource="{Binding DataOptions}" 
+                 Grid.Column="4"
+                 SelectedItem="{Binding SelectedOption}"
+                 Grid.Row="2">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Margin" Value="10" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <RadioButton GroupName="DataOption" 
+                                             IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}}"
+                                             Content="{Binding DisplayText}" />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
     </Grid>
-</Window>
+</Controls:MetroWindow>
