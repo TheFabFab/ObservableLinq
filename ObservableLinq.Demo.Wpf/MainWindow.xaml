@@ -8,7 +8,6 @@
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
                       xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
                       Title="MainWindow"
-                      d:DataContext="{d:DesignData Type={x:Type local:MainViewModel}}"
                       WindowState="Maximized">
     <Grid Margin="15" Grid.IsSharedSizeScope="True">
         <Grid.Resources>
@@ -21,11 +20,11 @@
                 <Setter Property="Margin" Value="5" />
                 <Setter Property="Padding" Value="5" />
             </Style>
-            
+
             <Style TargetType="ListBoxItem">
                 <Setter Property="Padding" Value="0" />
             </Style>
-            
+
             <Style TargetType="ItemsControl">
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="ItemTemplate">
@@ -52,7 +51,7 @@
                 </Setter>
             </Style>
         </Grid.Resources>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition SharedSizeGroup="Top" Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -69,7 +68,7 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="New item" HorizontalAlignment="Center" FontSize="20" FontStyle="Oblique" Grid.Row="0" />
-        
+
         <Border dd:DragDrop.IsDragSource="True" 
                 dd:DragDrop.DragHandler="{Binding}" 
                 dd:DragDrop.UseDefaultEffectDataTemplate="True"
@@ -86,9 +85,9 @@
         </Border>
 
         <Rectangle Height="3" Stroke="Black" StrokeThickness="3" Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Top" Margin="5,0,5,0" />
-        
+
         <TextBlock Text="Source" HorizontalAlignment="Center" FontSize="20" FontStyle="Oblique" Grid.Row="2" />
-        
+
         <ListBox ItemsSource="{Binding Collection}"
                  Grid.Column="1"
                  Grid.Row="2"
@@ -98,7 +97,7 @@
                  dd:DragDrop.IsDropTarget="True"
                  dd:DragDrop.UseDefaultEffectDataTemplate="True"
                  dd:DragDrop.UseDefaultDragAdorner="True" />
-        
+
         <ItemsControl ItemsSource="{Binding DataOptions}"
                       Grid.Column="2"
                       Grid.RowSpan="3">
@@ -120,12 +119,32 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        
+
         <ItemsControl ItemsSource="{Binding Observer}"
                       Margin="50,0,0,0"
                       Grid.Column="3"
-                      Grid.Row="2" />
-        
+                      Grid.Row="2">
+            <!--<ItemsControl.Template>
+                <ControlTemplate TargetType="{x:Type ItemsControl}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" 
+                            Padding="{TemplateBinding Padding}" 
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            <Canvas x:Name="AdornerLayer" />
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>-->
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <local:AnimatingPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
         <ListBox ItemsSource="{Binding DataOptions}" 
                  Grid.Column="4"
                  SelectedItem="{Binding SelectedOption}"
