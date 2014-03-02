@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ObservableLinq.Demo.Wpf
@@ -21,15 +22,17 @@ namespace ObservableLinq.Demo.Wpf
 
         public MainViewModel()
         {
-            _collection = new ObservableCollection<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+            _collection = new FixMoveObservableCollection<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8 });
             _newItemValue = _collection.Count + 1;
 
             _dataOptions = new List<DataOption>(new[] 
                 { 
+                    new DataOption("Original", _collection),
                     new DataOption("Distinct", _collection.ToQueryable().Distinct()),
-                    new DataOption("Ordered ascending", _collection.ToQueryable().OrderBy(x => x)),
-                    new DataOption("Ordered descending", _collection.ToQueryable().OrderByDescending(x => x)),
+                    new DataOption("Ordered Ascending", _collection.ToQueryable().OrderBy(x => x)),
+                    new DataOption("Ordered Descending", _collection.ToQueryable().OrderByDescending(x => x)),
                     new DataOption("Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0)),
+                    new DataOption("Ordered Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0).OrderBy(x => x)),
                     new DataOption("Squares", _collection.ToQueryable().Select(x => x * x)),
                 });
 
@@ -105,14 +108,59 @@ namespace ObservableLinq.Demo.Wpf
         public void Drop(IDropInfo dropInfo)
         {
         }
+
+        private class FixMoveObservableCollection<T> : ObservableCollection<T>
+        {
+            public FixMoveObservableCollection(IEnumerable<T> collection)
+                : base(collection)
+            {
+
+            }
+
+            protected override void InsertItem(int index, T item)
+            {
+                bool moved = false;
+                if (_removeIndex != -1)
+                {
+                    if (EqualityComparer<T>.Default.Equals(this[_removeIndex], item))
+                    {
+                        base.MoveItem(_removeIndex, index);
+                        moved = true;
+                        _removeIndex = -1;
+                    }
+                }
+
+                if (!moved)
+                {
+                    base.InsertItem(index, item);
+                }
+            }
+
+            protected override void RemoveItem(int index)
+            {
+                _removeIndex = index;
+                Task.Factory.StartNew(() => RemoveCore(), CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+
+            private void RemoveCore()
+            {
+                if (_removeIndex != -1)
+                {
+                    base.RemoveItem(_removeIndex);
+                    _removeIndex = -1;
+                }
+            }
+
+            private int _removeIndex = -1;
+        }
     }
 
     public struct DataOption : IEquatable<DataOption>
     {
         private readonly string _displayText;
-        private readonly IQueryableObservableCollection<int> _expression;
+        private readonly IList<int> _expression;
 
-        public DataOption(string displayText, IQueryableObservableCollection<int> expression)
+        public DataOption(string displayText, IList<int> expression)
         {
             _displayText = displayText;
             _expression = expression;
@@ -123,7 +171,7 @@ namespace ObservableLinq.Demo.Wpf
             get { return _displayText; }
         }
 
-        public IQueryableObservableCollection<int> Expression
+        public IList<int> Expression
         {
             get { return _expression; }
         }

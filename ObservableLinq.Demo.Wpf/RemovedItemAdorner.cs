@@ -15,13 +15,9 @@ namespace ObservableLinq.Demo.Wpf
 {
     public class RemovedItemAdorner : Adorner
     {
-        private static DependencyProperty XProperty = TranslateTransform.XProperty.AddOwner(typeof(RemovedItemAdorner));
-        private static DependencyProperty YProperty = TranslateTransform.YProperty.AddOwner(typeof(RemovedItemAdorner));
-
-        private readonly Vector _offset;
         private readonly Border _border;
 
-        public RemovedItemAdorner(UIElement adornedPanel, ContentPresenter adornedElement)
+        public RemovedItemAdorner(UIElement adornedPanel, FrameworkElement adornedElement)
             : base(adornedPanel)
         {
             this.IsHitTestVisible = false;
@@ -29,7 +25,7 @@ namespace ObservableLinq.Demo.Wpf
             Width = Math.Ceiling(adornedElement.ActualWidth);
             Height = Math.Ceiling(adornedElement.ActualHeight);
             
-            _offset = VisualTreeHelper.GetOffset(adornedElement);
+            var offset = VisualTreeHelper.GetOffset(adornedElement);
             
             _border = new Border 
             { 
@@ -38,57 +34,22 @@ namespace ObservableLinq.Demo.Wpf
                 Height = adornedElement.ActualHeight,
                 RenderTransform = new TranslateTransform
                 {
-                    X = _offset.X,
-                    Y = _offset.Y,
+                    X = offset.X,
+                    Y = offset.Y,
                 }
             };
 
             AddVisualChild(_border);
-
-            BindingOperations.SetBinding(_border.RenderTransform, TranslateTransform.XProperty, new Binding { Source = this, Path = new PropertyPath(XProperty) });
-            BindingOperations.SetBinding(_border.RenderTransform, TranslateTransform.YProperty, new Binding { Source = this, Path = new PropertyPath(YProperty) });
 
             Loaded += RemovedItemAdorner_Loaded;
         }
 
         private void RemovedItemAdorner_Loaded(object sender, RoutedEventArgs e)
         {
-            var storyboard = new Storyboard { Duration = new Duration(TimeSpan.FromMilliseconds(1300)) };
+            var animatedObject = this._border;
 
-            var animationOpacity = new DoubleAnimation
-            {
-                To = 0,
-                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut }
-            };
-
-            Storyboard.SetTarget(animationOpacity, _border);
-            Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(UIElement.OpacityProperty));
-            storyboard.Children.Add(animationOpacity);
-
-            var animationX = new DoubleAnimation
-            {
-                From = _offset.X,
-                To = _offset.X + 40,
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationX, this);
-            Storyboard.SetTargetProperty(animationX, new PropertyPath(XProperty));
-            storyboard.Children.Add(animationX);
-
-            var animationY = new DoubleAnimation
-            {
-                From = _offset.Y,
-                To = _offset.Y - 20,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationY, this);
-            Storyboard.SetTargetProperty(animationY, new PropertyPath(YProperty));
-            storyboard.Children.Add(animationY);
-
+            var storyboard = AnimationManager.StartExitAnimation(this, animatedObject);
             storyboard.Completed += storyboard_Completed;
-            storyboard.Begin(this);
         }
 
         protected override int VisualChildrenCount

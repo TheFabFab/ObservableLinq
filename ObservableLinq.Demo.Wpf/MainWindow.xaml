@@ -4,6 +4,7 @@
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                       mc:Ignorable="d"
+                      xmlns:metro="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:local="clr-namespace:ObservableLinq.Demo.Wpf"
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
                       xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
@@ -36,10 +37,24 @@
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <local:AnimatingPanel />
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <Style TargetType="ListBox">
                 <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBox">
+                            <ItemsPresenter />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="ItemTemplate">
                     <Setter.Value>
                         <DataTemplate>
@@ -47,6 +62,13 @@
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
                             </Border>
                         </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <local:AnimatingPanel />
+                        </ItemsPanelTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
@@ -77,7 +99,7 @@
                 Grid.Row="0"
                 Style="{StaticResource PostItBorder}">
             <TextBox Background="{x:Null}" 
-                     Text="{Binding NewItemValue}"
+                     Text="{Binding NewItemValue, UpdateSourceTrigger=PropertyChanged}"
                      BorderThickness="0" 
                      VerticalAlignment="Center" 
                      TextAlignment="Center" 
@@ -120,31 +142,6 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <ItemsControl ItemsSource="{Binding Observer}"
-                      Margin="50,0,0,0"
-                      Grid.Column="3"
-                      Grid.Row="2">
-            <!--<ItemsControl.Template>
-                <ControlTemplate TargetType="{x:Type ItemsControl}">
-                    <Border BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
-                            Background="{TemplateBinding Background}" 
-                            Padding="{TemplateBinding Padding}" 
-                            SnapsToDevicePixels="True">
-                        <Grid>
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            <Canvas x:Name="AdornerLayer" />
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </ItemsControl.Template>-->
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <local:AnimatingPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-
         <ListBox ItemsSource="{Binding DataOptions}" 
                  Grid.Column="4"
                  SelectedItem="{Binding SelectedOption}"
@@ -164,5 +161,16 @@
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>
+
+        <ItemsControl ItemsSource="{Binding Observer}"
+                      Margin="50,0,0,0"
+                      Grid.Column="3"
+                      Grid.Row="2">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <local:AnimatingPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
     </Grid>
 </Controls:MetroWindow>
