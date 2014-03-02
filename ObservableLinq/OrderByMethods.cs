@@ -55,7 +55,6 @@ namespace System.Linq
             private readonly IQueryableObservableCollection<TSource> _source;
             private readonly Func<TSource, TKey> _keySelector;
             private readonly IComparer<TKey> _comparer;
-            private readonly bool _descending;
 
             public SortedObservableCollection(IQueryableObservableCollection<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 : base(
@@ -66,8 +65,7 @@ namespace System.Linq
             {
                 _source = source;
                 _keySelector = keySelector;
-                _comparer = comparer;
-                _descending = descending;
+                _comparer = descending ? RevertComparer(comparer) : comparer;
             }
 
             public SortedObservableCollection(IQueryableObservableCollection<TSource> source, Func<TSource, TKey> keySelector, bool descending)
@@ -81,7 +79,7 @@ namespace System.Linq
 
                 foreach (var item in e.NewItems.OfType<TSource>())
                 {
-                    var position = this.BinarySearch(_keySelector(item), _keySelector);
+                    var position = this.BinarySearch(_keySelector(item), _keySelector, _comparer);
                     Insert(position.GetInsertionIndex(), item);
                 }
             }
@@ -92,7 +90,7 @@ namespace System.Linq
 
                 foreach (var item in e.OldItems.OfType<TSource>())
                 {
-                    var position = this.BinarySearch(_keySelector(item), _keySelector);
+                    var position = this.BinarySearch(_keySelector(item), _keySelector, _comparer);
                     if (position.Offset == 0)
                     {
                         RemoveAt(position.Index);
@@ -113,7 +111,7 @@ namespace System.Linq
 
                 foreach (var item in e.OldItems.OfType<TSource>())
                 {
-                    var position = this.BinarySearch(_keySelector(item), _keySelector);
+                    var position = this.BinarySearch(_keySelector(item), _keySelector, _comparer);
                     if (position.Offset == 0)
                     {
                         RemoveAt(position.Index);
@@ -122,7 +120,7 @@ namespace System.Linq
 
                 foreach (var item in e.NewItems.OfType<TSource>())
                 {
-                    var position = this.BinarySearch(_keySelector(item), _keySelector);
+                    var position = this.BinarySearch(_keySelector(item), _keySelector, _comparer);
                     Insert(position.GetInsertionIndex(), item);
                 }
             }
@@ -135,15 +133,16 @@ namespace System.Linq
                 {
                     Clear();
 
-                    foreach (
-                        var item in
-                        _descending ?
-                        ((IEnumerable<TSource>)_source).OrderByDescending(_keySelector) :
-                        ((IEnumerable<TSource>)_source).OrderBy(_keySelector))
+                    foreach (var item in ((IEnumerable<TSource>)_source).OrderBy(_keySelector, _comparer))
                     {
                         Add(item);
                     }
                 }
+            }
+
+            private IComparer<TKey> RevertComparer(IComparer<TKey> originalComparer)
+            {
+                return Comparer<TKey>.Create((k1, k2) => -originalComparer.Compare(k1, k2));
             }
         }
     }
