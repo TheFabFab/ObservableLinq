@@ -8,7 +8,7 @@
                       xmlns:local="clr-namespace:ObservableLinq.Demo.Wpf"
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
                       xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-                      Title="MainWindow"
+                      Title="ObservableLinq Demo"
                       WindowState="Maximized">
     <Grid Margin="15" Grid.IsSharedSizeScope="True">
         <Grid.Resources>
