@@ -109,6 +109,19 @@
         <Rectangle Height="3" Stroke="Black" StrokeThickness="3" Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Top" Margin="5,0,5,0" />
 
         <TextBlock Text="Source" HorizontalAlignment="Center" FontSize="20" FontStyle="Oblique" Grid.Row="2" />
+        
+        <Border Grid.Row="3" 
+                Margin="5" 
+                VerticalAlignment="Top" 
+                Background="DarkSalmon" 
+                BorderBrush="Black" 
+                dd:DragDrop.DropHandler="{Binding}" 
+                BorderThickness="3"
+                dd:DragDrop.IsDropTarget="True"
+                dd:DragDrop.UseDefaultEffectDataTemplate="True"
+                dd:DragDrop.UseDefaultDragAdorner="True">
+            <TextBlock Margin="5" Text="Delete" TextAlignment="Center" />
+        </Border>
 
         <ListBox ItemsSource="{Binding Collection}"
                  Grid.Column="1"

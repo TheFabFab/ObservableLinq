@@ -107,6 +107,12 @@ namespace ObservableLinq.Demo.Wpf
 
         public void Drop(IDropInfo dropInfo)
         {
+            var dragInfo = dropInfo.DragInfo;
+            var sourceCollection = dragInfo.SourceCollection as IList;
+            if (sourceCollection != null)
+            {
+                sourceCollection.RemoveAt(dragInfo.SourceIndex);
+            }
         }
 
         private class FixMoveObservableCollection<T> : ObservableCollection<T>

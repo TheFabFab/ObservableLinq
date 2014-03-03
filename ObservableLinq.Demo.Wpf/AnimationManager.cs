@@ -11,10 +11,10 @@ namespace ObservableLinq.Demo.Wpf
 {
     public static class AnimationManager
     {
-        private static readonly Duration _exitDuration = new Duration(TimeSpan.FromMilliseconds(2500));
-        private static readonly Duration _repositionDuration = new Duration(TimeSpan.FromMilliseconds(1650));
+        private static readonly Duration _exitDuration = new Duration(TimeSpan.FromMilliseconds(1300));
+        private static readonly Duration _repositionDuration = new Duration(TimeSpan.FromMilliseconds(1300));
         private static readonly TimeSpan _initialStagger = TimeSpan.FromMilliseconds(10);
-        private static readonly TimeSpan _stagger = TimeSpan.FromMilliseconds(150);
+        private static readonly TimeSpan _stagger = TimeSpan.FromMilliseconds(50);
 
         private static bool _isInitialBatch;
         private static DateTime _lastAnimationTime = DateTime.MinValue;

@@ -29,7 +29,7 @@ namespace ObservableLinq.Demo.Wpf
             
             _border = new Border 
             { 
-                Background = new VisualBrush(adornedElement), 
+                Background = new VisualBrush(adornedElement),                 
                 Width = adornedElement.ActualWidth, 
                 Height = adornedElement.ActualHeight,
                 RenderTransform = new TranslateTransform
@@ -39,16 +39,13 @@ namespace ObservableLinq.Demo.Wpf
                 }
             };
 
+            // HACK: Need to figure out why this doesn't work
+            _border.Width = 50;
+            _border.Height = 40;
+
             AddVisualChild(_border);
 
-            Loaded += RemovedItemAdorner_Loaded;
-        }
-
-        private void RemovedItemAdorner_Loaded(object sender, RoutedEventArgs e)
-        {
-            var animatedObject = this._border;
-
-            var storyboard = AnimationManager.StartExitAnimation(this, animatedObject);
+            var storyboard = AnimationManager.StartExitAnimation(this, _border);
             storyboard.Completed += storyboard_Completed;
         }
 
