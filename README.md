@@ -25,7 +25,7 @@ Let's consider our personal data view models from before. We can project that co
 
 ## License
 
-Apache 2.0
+[Apache License Version 2.0]
 
 ## Contributions
 
@@ -33,3 +33,4 @@ They're welcome - more to come
 
 [nuget]: https://www.nuget.org/
 [LINQ]: http://msdn.microsoft.com/en-us/library/bb397926.aspx
+[Apache License Version 2.0]:https://github.com/TheFabFab/ObservableLinq/blob/master/License.txt
