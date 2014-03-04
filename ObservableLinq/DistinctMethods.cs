@@ -10,12 +10,12 @@ namespace System.Linq
     {
         public static IQueryableObservableCollection<T> Distinct<T>(this IQueryableObservableCollection<T> @this, IEqualityComparer<T> comparer)
         {
-            return new DistinctObservableCollection<T>(@this, comparer);
+            return new DistinctObservableCollection<T>(@this.ToObservable(), comparer);
         }
 
         public static IQueryableObservableCollection<T> Distinct<T>(this IQueryableObservableCollection<T> @this)
         {
-            return new DistinctObservableCollection<T>(@this);
+            return new DistinctObservableCollection<T>(@this.ToObservable());
         }
 
         public static IOrderedQueryableObservableCollection<T> Distinct<T>(this IOrderedQueryableObservableCollection<T> @this, IEqualityComparer<T> comparer)
@@ -31,16 +31,16 @@ namespace System.Linq
         private class DistinctObservableCollection<T> : DerivedObservableCollection<T, T>
         {
             private readonly IEqualityComparer<T> _comparer;
-            private readonly IQueryableObservableCollection<T> _source;
+            private readonly IObservableCollection<T> _source;
 
-            public DistinctObservableCollection(IQueryableObservableCollection<T> source, IEqualityComparer<T> comparer)
+            public DistinctObservableCollection(IObservableCollection<T> source, IEqualityComparer<T> comparer)
                 : base(source, ((IEnumerable<T>)source).Distinct(comparer))
             {
                 _source = source;
                 _comparer = comparer ?? EqualityComparer<T>.Default;
             }
 
-            public DistinctObservableCollection(IQueryableObservableCollection<T> source)
+            public DistinctObservableCollection(IObservableCollection<T> source)
                 : this(source, null)
             {
             }

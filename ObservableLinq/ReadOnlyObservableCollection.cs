@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace System.Linq
 {
-    public class ReadOnlyObservableCollection<T> : IQueryableObservableCollection<T>
+    public class ReadOnlyObservableCollection<T> : IQueryableObservableCollection<T>, IObservableCollection<T>
     {
         private readonly ObservableCollection<T> _wrappedCollection;
         private int _notificationsLockCount;

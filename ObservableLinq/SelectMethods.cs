@@ -8,7 +8,7 @@ namespace System.Linq
     {
         public static IQueryableObservableCollection<TResult> Select<T, TResult>(this IQueryableObservableCollection<T> @this, Func<T, TResult> selector)
         {
-            return new ProjectedObservableCollection<T, TResult>(@this, selector);
+            return new ProjectedObservableCollection<T, TResult>(@this.ToObservable(), selector);
         }
 
         public static IQueryableObservableCollection<TResult> Select<T, TResult>(this IQueryableObservableCollection<T> @this, Func<T, int, TResult> selector)
@@ -19,9 +19,9 @@ namespace System.Linq
         private class ProjectedObservableCollection<T, TResult> : DerivedObservableCollection<T, TResult>
         {
             private readonly Func<T, TResult> _selector;
-            private readonly IQueryableObservableCollection<T> _source;
+            private readonly IObservableCollection<T> _source;
 
-            public ProjectedObservableCollection(IQueryableObservableCollection<T> source, Func<T, TResult> selector)
+            public ProjectedObservableCollection(IObservableCollection<T> source, Func<T, TResult> selector)
                 : base(source, ((IEnumerable<T>)source).Select(selector))
             {
                 _selector = selector;

@@ -15,7 +15,7 @@ namespace UnitTests
         public void Result_is_filtered_initially()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 3, 4, 5, 6, 7 });
-            var result = subject.ToQueryable().Where(i => i % 2 == 0);
+            var result = subject.ToQueryable().Where(i => i % 2 == 0).ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
             Assert.AreEqual(0, result[0]);
             Assert.AreEqual(2, result[1]);
@@ -28,7 +28,7 @@ namespace UnitTests
         public void Result_updated_after_Add()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 3, 4, 5, 6, 7 });
-            var result = subject.ToQueryable().Where(i => i % 2 == 0);
+            var result = subject.ToQueryable().Where(i => i % 2 == 0).ToObservable();
 
             subject.Add(8);
 
@@ -55,7 +55,7 @@ namespace UnitTests
         public void Result_updated_after_Remove()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 3, 4, 5, 6, 7 });
-            var result = subject.ToQueryable().Where(i => i % 2 == 0);
+            var result = subject.ToQueryable().Where(i => i % 2 == 0).ToObservable();
 
             subject.Remove(7);
 
@@ -93,7 +93,7 @@ namespace UnitTests
         public void Result_updated_after_Replace()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 3, 4, 5, 6, 7 });
-            var result = subject.ToQueryable().Where(i => i % 2 == 0);
+            var result = subject.ToQueryable().Where(i => i % 2 == 0).ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
             subject[3] = 4;
@@ -148,7 +148,7 @@ namespace UnitTests
         public void Result_updated_after_Move()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 3, 4, 5, 6, 7 });
-            var result = subject.ToQueryable().Where(i => i % 2 == 0);
+            var result = subject.ToQueryable().Where(i => i % 2 == 0).ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
             subject.Move(1, 5);

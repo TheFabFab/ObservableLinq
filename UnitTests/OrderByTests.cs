@@ -16,7 +16,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 5, 6, 7, 0, 3, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
@@ -32,7 +32,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 6, 7, 0, 3, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
@@ -72,7 +72,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
@@ -112,7 +112,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
@@ -138,7 +138,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
@@ -170,7 +170,7 @@ namespace UnitTests
         {
             var subject = new ObservableCollection<int>(new [] { 1, 2, 6, 4 });
 
-            var result = subject.ToQueryable().OrderBy(i => i);
+            var result = subject.ToQueryable().OrderBy(i => i).ToObservable();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 

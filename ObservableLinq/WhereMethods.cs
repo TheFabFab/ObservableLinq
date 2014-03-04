@@ -12,7 +12,7 @@ namespace System.Linq
     {
         public static IQueryableObservableCollection<T> Where<T>(this IQueryableObservableCollection<T> @this, Func<T, bool> predicate)
         {
-            return new FilteredObservableCollection<T>(@this, item => predicate(item));
+            return new FilteredObservableCollection<T>(@this.ToObservable(), item => predicate(item));
         }
 
         public static IQueryableObservableCollection<T> Where<T>(this IQueryableObservableCollection<T> @this, Func<T, int, bool> predicate)
@@ -23,9 +23,9 @@ namespace System.Linq
         private class FilteredObservableCollection<T> : DerivedObservableCollection<T, T>
         {
             private readonly Func<T, bool> _predicate;
-            private readonly IQueryableObservableCollection<T> _source;
+            private readonly IObservableCollection<T> _source;
 
-            public FilteredObservableCollection(IQueryableObservableCollection<T> source, Func<T, bool> predicate)
+            public FilteredObservableCollection(IObservableCollection<T> source, Func<T, bool> predicate)
                 : base(source, ((IEnumerable<T>)source).Where(predicate))
             {
                 _source = source;

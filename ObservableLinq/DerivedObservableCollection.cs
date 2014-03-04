@@ -10,13 +10,13 @@ namespace System.Linq
 {
     internal class DerivedObservableCollection<TSource, TResult> : ReadOnlyObservableCollection<TResult>
     {
-        public DerivedObservableCollection(IQueryableObservableCollection<TSource> source, IEnumerable<TResult> collection)
+        public DerivedObservableCollection(IObservableCollection<TSource> source, IEnumerable<TResult> collection)
             : base(collection)
         {
             source.CollectionChanged += source_CollectionChanged;
         }
-        
-        public DerivedObservableCollection(IQueryableObservableCollection<TSource> source)
+
+        public DerivedObservableCollection(IObservableCollection<TSource> source)
             : this(source, new TResult[]{})
         {
         }

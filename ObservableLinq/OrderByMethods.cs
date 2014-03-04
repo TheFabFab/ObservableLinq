@@ -12,22 +12,22 @@ namespace System.Linq
     {
         public static IOrderedQueryableObservableCollection<TSource> OrderBy<TSource, TKey>(this IQueryableObservableCollection<TSource> @this, Func<TSource, TKey> keySelector)
         {
-            return new SortedObservableCollection<TSource, TKey>(@this, keySelector, false);
+            return new SortedObservableCollection<TSource, TKey>(@this.ToObservable(), keySelector, false);
         }
 
         public static IOrderedQueryableObservableCollection<TSource> OrderBy<TSource, TKey>(this IQueryableObservableCollection<TSource> @this, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
         {
-            return new SortedObservableCollection<TSource, TKey>(@this, keySelector, comparer, false);
+            return new SortedObservableCollection<TSource, TKey>(@this.ToObservable(), keySelector, comparer, false);
         }
 
         public static IOrderedQueryableObservableCollection<TSource> OrderByDescending<TSource, TKey>(this IQueryableObservableCollection<TSource> @this, Func<TSource, TKey> keySelector)
         {
-            return new SortedObservableCollection<TSource, TKey>(@this, keySelector, true);
+            return new SortedObservableCollection<TSource, TKey>(@this.ToObservable(), keySelector, true);
         }
 
         public static IOrderedQueryableObservableCollection<TSource> OrderByDescending<TSource, TKey>(this IQueryableObservableCollection<TSource> @this, Func<TSource, TKey> keySelector, IComparer<TKey> comparer)
         {
-            return new SortedObservableCollection<TSource, TKey>(@this, keySelector, comparer, true);
+            return new SortedObservableCollection<TSource, TKey>(@this.ToObservable(), keySelector, comparer, true);
         }
 
         public static IOrderedQueryableObservableCollection<TSource> ThenBy<TSource, TKey>(this IOrderedQueryableObservableCollection<TSource> @this, Func<TSource, TKey> keySelector)
@@ -52,11 +52,11 @@ namespace System.Linq
 
         private class SortedObservableCollection<TSource, TKey> : DerivedObservableCollection<TSource, TSource>, IOrderedQueryableObservableCollection<TSource>
         {
-            private readonly IQueryableObservableCollection<TSource> _source;
+            private readonly IObservableCollection<TSource> _source;
             private readonly Func<TSource, TKey> _keySelector;
             private readonly IComparer<TKey> _comparer;
 
-            public SortedObservableCollection(IQueryableObservableCollection<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer, bool descending)
+            public SortedObservableCollection(IObservableCollection<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey> comparer, bool descending)
                 : base(
                     source,
                     descending ?
@@ -68,7 +68,7 @@ namespace System.Linq
                 _comparer = descending ? RevertComparer(comparer) : comparer;
             }
 
-            public SortedObservableCollection(IQueryableObservableCollection<TSource> source, Func<TSource, TKey> keySelector, bool descending)
+            public SortedObservableCollection(IObservableCollection<TSource> source, Func<TSource, TKey> keySelector, bool descending)
                 : this(source, keySelector, Comparer<TKey>.Default, descending)
             {
             }

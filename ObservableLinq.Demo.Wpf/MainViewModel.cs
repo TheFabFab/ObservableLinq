@@ -28,12 +28,12 @@ namespace ObservableLinq.Demo.Wpf
             _dataOptions = new List<DataOption>(new[] 
                 { 
                     new DataOption("Original", _collection),
-                    new DataOption("Distinct", _collection.ToQueryable().Distinct()),
-                    new DataOption("Ordered Ascending", _collection.ToQueryable().OrderBy(x => x)),
-                    new DataOption("Ordered Descending", _collection.ToQueryable().OrderByDescending(x => x)),
-                    new DataOption("Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0)),
-                    new DataOption("Ordered Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0).OrderBy(x => x)),
-                    new DataOption("Squares", _collection.ToQueryable().Select(x => x * x)),
+                    new DataOption("Distinct", _collection.ToQueryable().Distinct().ToObservable()),
+                    new DataOption("Ordered Ascending", _collection.ToQueryable().OrderBy(x => x).ToObservable()),
+                    new DataOption("Ordered Descending", _collection.ToQueryable().OrderByDescending(x => x).ToObservable()),
+                    new DataOption("Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0).ToObservable()),
+                    new DataOption("Ordered Even Numbers", _collection.ToQueryable().Where(x => x % 2 == 0).OrderBy(x => x).ToObservable()),
+                    new DataOption("Squares", _collection.ToQueryable().Select(x => x * x).ToObservable()),
                 });
 
             _observer = new ObserverCollection<int>();

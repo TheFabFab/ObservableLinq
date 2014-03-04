@@ -16,7 +16,7 @@ namespace UnitTests
         public void Result_is_correct_initially()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 1, 2, 0, 2, 7 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
             EnumerableAssert.AreEqual(result, 0, 1, 2, 7);
@@ -26,7 +26,7 @@ namespace UnitTests
         public void Result_is_updated_after_Add()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 1, 2, 0, 2, 7 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
             subject.Add(0);
@@ -45,7 +45,7 @@ namespace UnitTests
         public void Result_is_updated_after_Insert()
         {
             var subject = new ObservableCollection<int>(new [] { 10, 11, 12, 11, 12, 10, 12, 17 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             var eventList = new List<NotifyCollectionChangedEventArgs>();
 
             result.CollectionChanged += (s, e) => eventList.Add(e);
@@ -75,7 +75,7 @@ namespace UnitTests
         public void Result_is_updated_after_Remove()
         {
             var subject = new ObservableCollection<int>(new [] { 0, 1, 2, 1, 2, 0, 2, 7 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
 
             subject.Remove(0);
@@ -92,7 +92,7 @@ namespace UnitTests
         public void Result_is_updated_after_Replace()
         {
             var subject = new ObservableCollection<int>(new [] { 10, 11, 12, 11, 12, 10, 12, 17 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));
             
@@ -116,7 +116,7 @@ namespace UnitTests
         public void Result_is_updated_after_Move()
         {
             var subject = new ObservableCollection<int>(new [] { 10, 11, 12, 11, 12, 10, 12, 17 });
-            var result = subject.ToQueryable().Distinct();
+            var result = subject.ToQueryable().Distinct().ToObservable();
             var expected = subject.Distinct();
 
             Assert.IsInstanceOfType(result, typeof(IQueryableObservableCollection<int>));

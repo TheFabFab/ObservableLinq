@@ -26,7 +26,7 @@ namespace System.Linq
         new int Count { get; }
     }
 
-    public interface IQueryableObservableCollection<T> : IObservableCollection<T>
+    public interface IQueryableObservableCollection<T>
     {
     }
 
@@ -39,6 +39,14 @@ namespace System.Linq
         public static IQueryableObservableCollection<T> ToQueryable<T>(this ObservableCollection<T> @this)
         {
             return new ReadOnlyObservableCollection<T>(@this);
+        }
+
+        public static IObservableCollection<T> ToObservable<T>(this IQueryableObservableCollection<T> @this)
+        {
+            var observable = @this as IObservableCollection<T>;
+            System.Diagnostics.Debug.Assert(observable != null);
+            if (observable == null) throw new InvalidOperationException("Must implement IObservableCollection<T>");
+            return observable;
         }
     }
 }
