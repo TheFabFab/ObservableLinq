@@ -9,71 +9,8 @@
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro" 
                       xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
                       Title="ObservableLinq Demo"
-                      WindowState="Maximized">
+                      WindowState="Normal">
     <Grid Margin="15" Grid.IsSharedSizeScope="True">
-        <Grid.Resources>
-            <Style TargetType="Border" x:Key="PostItBorder">
-                <Setter Property="BorderBrush" Value="DarkGray" />
-                <Setter Property="Width" Value="50" />
-                <Setter Property="Height" Value="40" />
-                <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="Background" Value="Yellow" />
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="Padding" Value="5" />
-            </Style>
-
-            <Style TargetType="ListBoxItem">
-                <Setter Property="Padding" Value="0" />
-            </Style>
-
-            <Style TargetType="ItemsControl">
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="ItemTemplate">
-                    <Setter.Value>
-                        <DataTemplate>
-                            <Border Style="{StaticResource PostItBorder}">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
-                            </Border>
-                        </DataTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="ItemsPanel">
-                    <Setter.Value>
-                        <ItemsPanelTemplate>
-                            <local:AnimatingPanel />
-                        </ItemsPanelTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <Style TargetType="ListBox">
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBox">
-                            <ItemsPresenter />
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="ItemTemplate">
-                    <Setter.Value>
-                        <DataTemplate>
-                            <Border Style="{StaticResource PostItBorder}">
-                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
-                            </Border>
-                        </DataTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="ItemsPanel">
-                    <Setter.Value>
-                        <ItemsPanelTemplate>
-                            <local:AnimatingPanel />
-                        </ItemsPanelTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Grid.Resources>
-
         <Grid.RowDefinitions>
             <RowDefinition SharedSizeGroup="Top" Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -185,5 +122,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
+        
+        <Image x:Name="img" Width="200" Height="100" Stretch="Uniform" />
     </Grid>
 </Controls:MetroWindow>

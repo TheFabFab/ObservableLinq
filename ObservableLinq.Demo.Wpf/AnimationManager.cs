@@ -86,7 +86,7 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject);
+            storyboard.Begin(containingObject, true);
 
             return storyboard;
         }
@@ -132,7 +132,7 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject);
+            storyboard.Begin(containingObject, true);
             return storyboard;
         }
 
@@ -184,7 +184,7 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject);
+            storyboard.Begin(containingObject, true);
             return storyboard;
         }
     }
