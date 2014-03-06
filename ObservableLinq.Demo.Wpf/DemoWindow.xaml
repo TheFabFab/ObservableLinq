@@ -1,0 +1,32 @@
+﻿<Window x:Class="ObservableLinq.Demo.Wpf.DemoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Demo1"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        xmlns:mec="http://schemas.microsoft.com/expression/2010/drawing">
+    <Grid x:Name="Root" Background="White">
+        <Grid Margin="15" Grid.IsSharedSizeScope="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ItemsControl ItemsSource="{Binding Collection}"
+                     Grid.Column="0"
+                     Margin="0,0,50,0"
+                     HorizontalAlignment="Left" />
+            <mec:Callout Grid.Column="1"
+                         x:Name="Callout"
+                         VerticalAlignment="Top" 
+                         Height="90" 
+                         Background="Beige" 
+                         Stroke="Black" 
+                         StrokeThickness="3" 
+                         Opacity="0"
+                         Fill="Bisque" 
+                         AnchorPoint="-0.2, 0.8">
+                <TextBlock Margin="10" Text="This is our source collection" FontSize="16" TextWrapping="Wrap" />
+            </mec:Callout>
+        </Grid>
+    </Grid>
+</Window>
