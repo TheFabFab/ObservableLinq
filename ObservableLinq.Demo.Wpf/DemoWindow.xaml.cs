@@ -34,34 +34,43 @@ namespace ObservableLinq.Demo.Wpf
             SizeToContent = System.Windows.SizeToContent.Manual;
             await Task.Delay(3000);
 
-            var encoder = new AnimatedGifEncoder();
-            encoder.Start("output.gif");
-            encoder.SetRepeat(0);
-            encoder.SetFrameRate(10);
-
-            var sb = AnimationManager.StartEntryAnimation(this, Callout);
-            sb.Pause(this);
-
-            await Task.Delay(100);
-
-            var title = Title;
-            while (sb.GetCurrentState(this) != ClockState.Filling)
+            using (var recorder = new GifRecorder(this, Root, "output2.gif", 10))
             {
-                var currentTime = sb.GetCurrentTime(this);
-                Title = String.Format("{0} ms completed.", currentTime.Value.TotalMilliseconds);
-                AddFrame(encoder, Root);
-                sb.Seek(this, currentTime.Value + TimeSpan.FromMilliseconds(100), TimeSeekOrigin.BeginTime);
-                await Task.Delay(17);
+                var sb = AnimationManager.StartEntryAnimation(this, Callout);
+
+                var originalTitle = Title;
+                Title = "Recording...";
+                await recorder.RegisterStoryboard(sb);
+                Title = "Ready";
+                await Task.Delay(3000);
+                Title = originalTitle;
             }
 
-            Title = title;
+            //var encoder = new AnimatedGifEncoder();
+            //encoder.Start("output.gif");
+            //encoder.SetRepeat(0);
+            //encoder.SetFrameRate(10);
+
+
+            //await Task.Delay(100);
+
+            //while (sb.GetCurrentState(this) != ClockState.Filling)
+            //{
+            //    var currentTime = sb.GetCurrentTime(this);
+            //    Title = String.Format("{0} ms completed.", currentTime.Value.TotalMilliseconds);
+            //    AddFrame(encoder, Root);
+            //    sb.Seek(this, currentTime.Value + TimeSpan.FromMilliseconds(100), TimeSeekOrigin.BeginTime);
+            //    await Task.Delay(17);
+            //}
+
+            //Title = title;
 
             //await Task.Delay(3000);
             //AnimationManager.StartExitAnimation(this, Callout);
             //await Task.Delay(3000);
             //_viewModel.Collection.RemoveAt(3);
 
-            encoder.Finish();
+            //encoder.Finish();
         }
 
         private void AddFrame(AnimatedGifEncoder encoder, FrameworkElement root)

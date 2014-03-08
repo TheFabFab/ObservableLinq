@@ -109,6 +109,7 @@
     <Compile Include="ext\AnimatedGifEncoder.cs" />
     <Compile Include="ext\LZWEncoder.cs" />
     <Compile Include="ext\NeuQuant .cs" />
+    <Compile Include="GifRecorder.cs" />
     <Compile Include="RemovedItemAdorner.cs" />
     <Page Include="DemoWindow.xaml">
       <SubType>Designer</SubType>
