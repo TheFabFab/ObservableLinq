@@ -60,7 +60,7 @@ namespace ObservableLinq.Demo.Wpf
         {
             var desiredSize = base.MeasureOverride(constraint);
 
-            // Reapply the offset ot children that should have been moved,
+            // Reapply the offset of children that should have been moved,
             // but were re-created, in fact
             foreach (var movedItemOffsetNode in _movedItemOffsets)
             {
@@ -83,11 +83,11 @@ namespace ObservableLinq.Demo.Wpf
                 var newOffset = VisualTreeHelper.GetOffset(child);
                 if (EqualityComparer<Vector>.Default.Equals(oldOffset, new Vector(Double.NaN, Double.NaN)))
                 {
-                    AnimationManager.StartEntryAnimation(this, child);
+                    AnimationManager.StartEntryAnimation(child);
                 }
                 else if (oldOffset != newOffset)
                 {
-                    AnimationManager.StartRepositionAnimation(this, child, newOffset - oldOffset);
+                    AnimationManager.StartRepositionAnimation(child, newOffset - oldOffset);
                 }
 
                 SetOffset(child, newOffset);

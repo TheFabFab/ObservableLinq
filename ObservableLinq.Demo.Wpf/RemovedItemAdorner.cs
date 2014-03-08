@@ -45,7 +45,7 @@ namespace ObservableLinq.Demo.Wpf
 
             AddVisualChild(_border);
 
-            var storyboard = AnimationManager.StartExitAnimation(this, _border);
+            var storyboard = AnimationManager.StartExitAnimation(_border);
             storyboard.Completed += storyboard_Completed;
         }
 

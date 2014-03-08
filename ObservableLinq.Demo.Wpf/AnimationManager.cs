@@ -36,7 +36,7 @@ namespace ObservableLinq.Demo.Wpf
             return _currentStagger;
         }
 
-        public static Storyboard StartEntryAnimation(FrameworkElement containingObject, FrameworkElement animatedObject)
+        public static Storyboard StartEntryAnimation(FrameworkElement animatedObject, double xDelta = -40, double yDelta = 10)
         {
             var translateTransform = animatedObject.RenderTransform as TranslateTransform;
 
@@ -45,18 +45,20 @@ namespace ObservableLinq.Demo.Wpf
 
             if (translateTransform == null)
             {
-                animatedObject.RenderTransform = translateTransform = new TranslateTransform(-40, 10);
+                animatedObject.RenderTransform = translateTransform = new TranslateTransform(xDelta, yDelta);
             }
             else
             {
-                translateTransform.SetCurrentValue(TranslateTransform.XProperty, translateTransform.X - 40);
-                translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.X + 10);
+                translateTransform.SetCurrentValue(TranslateTransform.XProperty, translateTransform.X - xDelta);
+                translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.X + yDelta);
             }
 
-            var storyboard = new Storyboard { Duration = _repositionDuration, BeginTime = CalculateStagger() };
+            var storyboard = new Storyboard();
 
             var animationOpacity = new DoubleAnimation
             {
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
                 From = 0,
                 To = 1,
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
@@ -68,6 +70,8 @@ namespace ObservableLinq.Demo.Wpf
 
             var animationX = new DoubleAnimation
             {
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
                 To = 0,
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
@@ -78,6 +82,8 @@ namespace ObservableLinq.Demo.Wpf
 
             var animationY = new DoubleAnimation
             {
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
                 To = 0,
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
             };
@@ -86,12 +92,12 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject, true);
+            GifRecorderManager.Instance.RegisterStoryboard(storyboard);
 
             return storyboard;
         }
 
-        public static Storyboard StartExitAnimation(FrameworkElement containingObject, FrameworkElement animatedObject)
+        public static Storyboard StartExitAnimation(FrameworkElement animatedObject, double xDelta = 60, double yDelta = -20)
         {
             var translateTransform = animatedObject.RenderTransform as TranslateTransform;
 
@@ -100,10 +106,12 @@ namespace ObservableLinq.Demo.Wpf
                 animatedObject.RenderTransform = translateTransform = new TranslateTransform(0, 0);
             }
 
-            var storyboard = new Storyboard { Duration = _exitDuration, BeginTime = CalculateStagger() };
+            var storyboard = new Storyboard();
 
             var animationOpacity = new DoubleAnimation
             {
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
                 To = 0,
                 EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut }
             };
@@ -114,7 +122,9 @@ namespace ObservableLinq.Demo.Wpf
 
             var animationX = new DoubleAnimation
             {
-                By = 60,
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
+                By = xDelta,
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
 
@@ -124,7 +134,9 @@ namespace ObservableLinq.Demo.Wpf
 
             var animationY = new DoubleAnimation
             {
-                By = -20,
+                Duration = _exitDuration,
+                BeginTime = CalculateStagger(),
+                By = yDelta,
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
             };
 
@@ -132,11 +144,12 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject, true);
+            GifRecorderManager.Instance.RegisterStoryboard(storyboard);
+
             return storyboard;
         }
 
-        public static Storyboard StartRepositionAnimation(FrameworkElement containingObject, FrameworkElement animatedObject, Vector offset)
+        public static Storyboard StartRepositionAnimation(FrameworkElement animatedObject, Vector offset)
         {
             var translateTransform = animatedObject.RenderTransform as TranslateTransform;
 
@@ -150,10 +163,12 @@ namespace ObservableLinq.Demo.Wpf
                 translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.Y - offset.Y);
             }
 
-            var storyboard = new Storyboard { Duration = _repositionDuration, BeginTime = CalculateStagger() };
+            var storyboard = new Storyboard();
 
             var animationX = new DoubleAnimation
             {
+                Duration = _repositionDuration,
+                BeginTime = CalculateStagger(),
                 To = 0,
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
             };
@@ -162,6 +177,8 @@ namespace ObservableLinq.Demo.Wpf
             {
                 animationX = new DoubleAnimation
                 {
+                    Duration = _repositionDuration,
+                    BeginTime = CalculateStagger(),
                     To = translateTransform.Y / 4 + Math.Sign(translateTransform.Y) * animatedObject.ActualWidth,
                     AccelerationRatio = .5,
                     DecelerationRatio = .5,
@@ -176,6 +193,8 @@ namespace ObservableLinq.Demo.Wpf
 
             var animationY = new DoubleAnimation
             {
+                Duration = _repositionDuration,
+                BeginTime = CalculateStagger(),
                 To = 0,
                 EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
             };
@@ -184,7 +203,8 @@ namespace ObservableLinq.Demo.Wpf
             Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
             storyboard.Children.Add(animationY);
 
-            storyboard.Begin(containingObject, true);
+            GifRecorderManager.Instance.RegisterStoryboard(storyboard);
+
             return storyboard;
         }
     }
