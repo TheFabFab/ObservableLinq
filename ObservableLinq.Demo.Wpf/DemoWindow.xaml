@@ -8,50 +8,69 @@
         local:AnimationManager.IsAnimationRoot="true"
         xmlns:mec="http://schemas.microsoft.com/expression/2010/drawing">
     <Grid x:Name="Root" Background="White">
+        <Grid.Resources>
+            <Style TargetType="ItemsControl">
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PostItBorder}">
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding}" />
+                            </Border>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <local:AnimatingPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
         <Grid Margin="15" Grid.IsSharedSizeScope="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Column="0"
+            <Grid Grid.Row="0"
                   local:AnimationManager.IsAnimationRoot="True"
                   local:AnimationManager.AnimationDelay="500">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 
                 <TextBlock x:Name="SourceLabel" Opacity="0.0" Text="Original" FontWeight="Bold" Margin="40,20" />
 
                 <ItemsControl ItemsSource="{Binding Collection}"
-                          Grid.Column="0"
-                          Grid.Row="1"
-                          HorizontalAlignment="Center" />
+                              Grid.Column="1"
+                              VerticalAlignment="Center" />
             </Grid>
 
-            <Grid Grid.Column="1"
+            <Grid Grid.Row="1"
                   local:AnimationManager.IsAnimationRoot="True"
                   local:AnimationManager.AnimationDelay="1500">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <TextBlock x:Name="TargetLabel" Opacity="0.0" Grid.Column="1" Text="Projected" FontWeight="Bold" Margin="40,20" />
+                <TextBlock x:Name="TargetLabel" Opacity="0.0" Text="Projected" FontWeight="Bold" Margin="40,20" />
 
                 <ItemsControl ItemsSource="{Binding Observer}"
-                          Grid.Column="1"
-                          Grid.Row="1"
-                          HorizontalAlignment="Center" />
+                              Grid.Column="1"
+                              VerticalAlignment="Center" />
 
             </Grid>
             
-            <Grid Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0,20,0,0">
+            <Grid Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0,20,0">
                 <TextBlock x:Name="Label1" HorizontalAlignment="Center" Opacity="0.0" Text="Projected = Original.Select(x => x * x)" />
                 <TextBlock x:Name="Label2" HorizontalAlignment="Center" Opacity="0.0" Text="Original.RemoveAt(3)" />
                 <TextBlock x:Name="Label3" HorizontalAlignment="Center" Opacity="0.0" Text="Original.Insert(0, 4)" />
