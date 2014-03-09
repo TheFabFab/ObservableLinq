@@ -1,6 +1,9 @@
 # ObservableLinq
 
-ObservableLinq is an open source, portable class library that can be easily deployed from [nuget] and used in .NET 4.5, Windows Phone 8 and Windows Store applications. ObservableLinq proposes to implement a subset of the [LINQ] operators on ObservableCollection, where source collection changes are automatically reflected in the result collection. 
+
+ObservableLinq is an open source, portable class library that can be easily deployed from [nuget] and used in .NET 4.5, Windows Phone 8 and Windows Store applications. ObservableLinq proposes to implement a subset of the [LINQ] operators on ObservableCollection, where source collection changes are automatically reflected in the result collection.
+
+![a](https://raw.github.com/TheFabFab/ObservableLinq/master/img/basic_projection.gif)
 
 ## How would you use ObservableLinq?
 
