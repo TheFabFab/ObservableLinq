@@ -43,7 +43,7 @@
                   local:AnimationManager.IsAnimationRoot="True"
                   local:AnimationManager.AnimationDelay="500">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 
@@ -58,7 +58,7 @@
                   local:AnimationManager.IsAnimationRoot="True"
                   local:AnimationManager.AnimationDelay="1500">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="Label" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
@@ -71,7 +71,7 @@
             </Grid>
             
             <Grid Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0,20,0">
-                <TextBlock x:Name="Label1" HorizontalAlignment="Center" Opacity="0.0" Text="Projected = Original.Select(x => x * x)" />
+                <TextBlock x:Name="Label1" HorizontalAlignment="Center" Margin="5" Opacity="0.0" Text="Projected = Original.Select(x => x * x)" />
                 <TextBlock x:Name="Label2" HorizontalAlignment="Center" Opacity="0.0" Text="Original.RemoveAt(3)" />
                 <TextBlock x:Name="Label3" HorizontalAlignment="Center" Opacity="0.0" Text="Original.Insert(0, 4)" />
                 <TextBlock x:Name="Label4" HorizontalAlignment="Center" Opacity="0.0" Text="Original.Move(0, 3)" />
