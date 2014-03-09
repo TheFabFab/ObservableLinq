@@ -37,8 +37,11 @@ namespace ObservableLinq.Demo.Wpf
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Remove:
-                    System.Diagnostics.Debug.Assert(args.ItemUICount == 1);
-                    OnChildRemoved(args.Position.Index);
+                    System.Diagnostics.Debug.Assert(args.ItemUICount <= 1);
+                    if (args.ItemUICount > 0)
+                    {
+                        OnChildRemoved(args.Position.Index);
+                    }
                     break;
             }
 

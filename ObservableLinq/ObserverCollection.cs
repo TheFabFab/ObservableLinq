@@ -27,32 +27,39 @@ namespace System.Linq
                 _currentSubject = null;
             }
 
-            for (int index = 0; index < subject.Count; index++ )
+            int newSubjectCount = 0;
+
+            if (subject != null)
             {
-                var item = subject[index];
+                newSubjectCount = subject.Count;
 
-                var oldIndex =
-                    this
-                        .Skip(index)
-                        .Select((x, idx) => new { Item = x, Index = idx })
-                        .Where(x => _comparer.Equals(x.Item, item))
-                        .Select(x => index + x.Index)
-                        .DefaultIfEmpty(-1)
-                        .First();
+                for (int index = 0; index < subject.Count; index++)
+                {
+                    var item = subject[index];
 
-                if (oldIndex == -1)
-                {
-                    Insert(index, item);
-                }
-                else
-                {
-                    Move(oldIndex, index);
+                    var oldIndex =
+                        this
+                            .Skip(index)
+                            .Select((x, idx) => new { Item = x, Index = idx })
+                            .Where(x => _comparer.Equals(x.Item, item))
+                            .Select(x => index + x.Index)
+                            .DefaultIfEmpty(-1)
+                            .First();
+
+                    if (oldIndex == -1)
+                    {
+                        Insert(index, item);
+                    }
+                    else
+                    {
+                        Move(oldIndex, index);
+                    }
                 }
             }
 
-            while (this.Count > subject.Count)
+            while (this.Count > newSubjectCount)
             {
-                RemoveAt(subject.Count);
+                RemoveAt(newSubjectCount);
             }
 
             _currentSubject = subject as INotifyCollectionChanged;

@@ -38,8 +38,9 @@ namespace ObservableLinq.Demo.Wpf
             return _activeRecorder = new GifRecorder(container, root, fileName, fps);
         }
 
-        public Task CurrentStoryboardsCompleted()
+        public async Task CurrentStoryboardsCompleted()
         {
+            await Task.Delay(100);
             TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
             if (_activeRecorder != null)
             {
@@ -47,6 +48,8 @@ namespace ObservableLinq.Demo.Wpf
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("Active animations: {0}", _activeStoryboards.Count);
+
                 _activeStoryboards
                     .Select(sb => sb.Item2)
                     .WhenAll()
@@ -58,7 +61,7 @@ namespace ObservableLinq.Demo.Wpf
                         });
             }
 
-            return tcs.Task;
+            await tcs.Task;
         }
 
         private class GifRecorder : IDisposable
@@ -165,7 +168,9 @@ namespace ObservableLinq.Demo.Wpf
 
                 public bool MoveNext()
                 {
-                    if (_storyboard.GetCurrentState(_container) != ClockState.Filling)
+                    var currentState = _storyboard.GetCurrentState(_container);
+
+                    if (currentState == ClockState.Active)
                     {
                         var currentTime = _storyboard.GetCurrentTime(_container);
                         if (currentTime.HasValue)
@@ -188,7 +193,7 @@ namespace ObservableLinq.Demo.Wpf
         public static Task WhenCompleted(this Storyboard @this)
         {
             var tcs = new TaskCompletionSource<object>();
-            @this.Completed += (s, e) => tcs.SetResult(null);
+            @this.Completed += (s, e) => tcs.TrySetResult(null);
             return tcs.Task;
         }
 

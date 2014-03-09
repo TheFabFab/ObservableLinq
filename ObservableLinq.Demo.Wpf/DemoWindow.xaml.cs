@@ -25,39 +25,78 @@ namespace ObservableLinq.Demo.Wpf
         public DemoWindow()
         {
             DataContext = _viewModel = new MainViewModel();
-            InitializeComponent();
+            _viewModel.Observer.Observe(null);
+            
+            foreach (var item in new[] { 1, 2, 3, 4, 5, 6, 7, 8 })
+            {
+                _viewModel.Collection.Add(item);
+            }
+
+            InitializeComponent();            
+            
             Loaded += DemoWindow_Loaded;
         }
 
         private async void DemoWindow_Loaded(object sender, RoutedEventArgs e)
         {
             SizeToContent = System.Windows.SizeToContent.Manual;
-            await Task.Delay(3000);
+            await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
+            
+            _viewModel.Collection.Clear();
 
             var originalTitle = Title;
             Title = "Recording...";
 
-            using (GifRecorderManager.Instance.StartRecording(this, Root, "output.gif", 15))
+            using (GifRecorderManager.Instance.StartRecording(this, Root, "basic_projection.gif", 10))
             {
-                AnimationManager.StartEntryAnimation(Callout, -10, 5);
+                foreach (var item in new[] { 1, 2, 3, 4, 5, 6, 7, 8 })
+                {
+                    _viewModel.Collection.Add(item);
+                }
+
+                AnimationManager.StartEntryAnimation(SourceLabel);
 
                 await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
 
-                await Task.Delay(3000);
-
-                AnimationManager.StartExitAnimation(Callout, 10, -5);
+                AnimationManager.StartEntryAnimation(TargetLabel);
+                AnimationManager.StartEntryAnimation(Label1);
+                _viewModel.SelectedOption = _viewModel.DataOptions[6];
 
                 await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
 
+                //await AnimationManager.Pause(1000);
+
+                System.Diagnostics.Debug.WriteLine("Removing");
+                AnimationManager.StartExitAnimation(Label1);
+                AnimationManager.StartEntryAnimation(Label2);
                 _viewModel.Collection.RemoveAt(3);
+
+                await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
+
+                //await AnimationManager.Pause(1000);
+
+                AnimationManager.StartExitAnimation(Label2);
+                AnimationManager.StartEntryAnimation(Label3);
+                _viewModel.Collection.Insert(0, 4);
+
+                await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
+
+                // await AnimationManager.Pause(1000);
+
+                AnimationManager.StartExitAnimation(Label3);
+                AnimationManager.StartEntryAnimation(Label4);
+                _viewModel.Collection.Move(0, 3);
+
+                await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
+
+                //await AnimationManager.Pause(1000);
+
+                AnimationManager.StartExitAnimation(Root, 10, -5);
 
                 await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
             }
 
-            Title = "Ready";
-            await Task.Delay(3000);
-            Title = originalTitle;
-
+            Close();
         }
     }
 }

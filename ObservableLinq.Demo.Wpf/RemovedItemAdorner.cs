@@ -45,8 +45,15 @@ namespace ObservableLinq.Demo.Wpf
 
             AddVisualChild(_border);
 
-            var storyboard = AnimationManager.StartExitAnimation(_border);
-            storyboard.Completed += storyboard_Completed;
+            Loaded += RemovedItemAdorner_Loaded;
+        }
+
+        private async void RemovedItemAdorner_Loaded(object sender, RoutedEventArgs e)
+        {
+            await AnimationManager.StartExitAnimation(_border);
+
+            var adornerLayer = AdornerLayer.GetAdornerLayer(this.AdornedElement);
+            adornerLayer.Remove(this);
         }
 
         protected override int VisualChildrenCount
@@ -73,12 +80,6 @@ namespace ObservableLinq.Demo.Wpf
         {
             _border.Arrange(new Rect(0, 0, Width, Height));
             return base.ArrangeOverride(finalSize);
-        }
-
-        private void storyboard_Completed(object sender, EventArgs e)
-        {
-            var adornerLayer = AdornerLayer.GetAdornerLayer(this.AdornedElement);
-            adornerLayer.Remove(this);
         }
     }
 }

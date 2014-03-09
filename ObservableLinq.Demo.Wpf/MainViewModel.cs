@@ -22,7 +22,7 @@ namespace ObservableLinq.Demo.Wpf
 
         public MainViewModel()
         {
-            _collection = new FixMoveObservableCollection<int>(new[] { 1, 2, 3, 4, 5, 6, 7, 8 });
+            _collection = new FixMoveObservableCollection<int>();
             _newItemValue = _collection.Count + 1;
 
             _dataOptions = new List<DataOption>(new[] 
@@ -121,6 +121,11 @@ namespace ObservableLinq.Demo.Wpf
                 : base(collection)
             {
 
+            }
+            
+            public FixMoveObservableCollection()
+                : base()
+            {
             }
 
             protected override void InsertItem(int index, T item)

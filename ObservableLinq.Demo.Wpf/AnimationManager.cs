@@ -9,203 +9,343 @@ using System.Windows.Media.Animation;
 
 namespace ObservableLinq.Demo.Wpf
 {
-    public static class AnimationManager
+    public class AnimationManager : DependencyObject
     {
-        private static readonly Duration _exitDuration = new Duration(TimeSpan.FromMilliseconds(1300));
-        private static readonly Duration _repositionDuration = new Duration(TimeSpan.FromMilliseconds(1300));
-        private static readonly TimeSpan _initialStagger = TimeSpan.FromMilliseconds(10);
-        private static readonly TimeSpan _stagger = TimeSpan.FromMilliseconds(50);
+        public static readonly DependencyProperty IsAnimationRootProperty =
+            DependencyProperty.RegisterAttached(
+                "IsAnimationRoot",
+                typeof(bool),
+                typeof(AnimationManager),
+                new FrameworkPropertyMetadata(
+                    false,
+                    IsAnimationRootPropertyChanged));
+
+        public static readonly DependencyProperty AnimationDelayProperty =
+            DependencyProperty.RegisterAttached(
+                "AnimationDelay",
+                typeof(double),
+                typeof(AnimationManager),
+                new FrameworkPropertyMetadata(0.0, AnimationDelayPropertyChanged));
+
+        private static readonly DependencyProperty AnimationRootProperty =
+            DependencyProperty.RegisterAttached(
+                "AnimationRoot",
+                typeof(AnimationManagerCore),
+                typeof(AnimationManager),
+                new FrameworkPropertyMetadata(
+                    null, 
+                    FrameworkPropertyMetadataOptions.Inherits));
 
         private static bool _isInitialBatch;
-        private static DateTime _lastAnimationTime = DateTime.MinValue;
-        private static TimeSpan _currentStagger;
 
-        private static TimeSpan CalculateStagger()
+        public static bool GetIsAnimationRoot(DependencyObject source)
         {
-            if (DateTime.UtcNow - _lastAnimationTime > _stagger)
-            {
-                _isInitialBatch = _lastAnimationTime == DateTime.MinValue;
-                _currentStagger = TimeSpan.Zero;
-            }
-            else
-            {
-                _currentStagger = _currentStagger + (_isInitialBatch ? _initialStagger : _stagger);
-            }
-
-            _lastAnimationTime = DateTime.UtcNow;
-            return _currentStagger;
+            return (bool)source.GetValue(IsAnimationRootProperty);
         }
 
-        public static Storyboard StartEntryAnimation(FrameworkElement animatedObject, double xDelta = -40, double yDelta = 10)
+        public static void SetIsAnimationRoot(DependencyObject target, bool value)
         {
-            var translateTransform = animatedObject.RenderTransform as TranslateTransform;
+            target.SetValue(IsAnimationRootProperty, value);
+        }
 
-            animatedObject.Opacity = 0.0;
-            animatedObject.SetCurrentValue(FrameworkElement.OpacityProperty, 0.0);
+        public static double GetAnimationDelay(DependencyObject source)
+        {
+            return (double)source.GetValue(AnimationDelayProperty);
+        }
 
-            if (translateTransform == null)
-            {
-                animatedObject.RenderTransform = translateTransform = new TranslateTransform(xDelta, yDelta);
-            }
-            else
-            {
-                translateTransform.SetCurrentValue(TranslateTransform.XProperty, translateTransform.X - xDelta);
-                translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.X + yDelta);
-            }
+        public static void SetAnimationDelay(DependencyObject target, double value)
+        {
+            target.SetValue(AnimationDelayProperty, value);
+        }
 
-            var storyboard = new Storyboard();
-
-            var animationOpacity = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                From = 0,
-                To = 1,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationOpacity, animatedObject);
-            Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(UIElement.OpacityProperty));
-            storyboard.Children.Add(animationOpacity);
-
-            var animationX = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                To = 0,
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationX, animatedObject);
-            Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
-            storyboard.Children.Add(animationX);
-
-            var animationY = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                To = 0,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationY, animatedObject);
-            Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
-            storyboard.Children.Add(animationY);
-
+        public static async Task Pause(int delayMilliseconds)
+        {
+            var storyboard = new Storyboard { Duration = new Duration(TimeSpan.FromMilliseconds(delayMilliseconds)) };
             GifRecorderManager.Instance.RegisterStoryboard(storyboard);
-
-            return storyboard;
+            await GifRecorderManager.Instance.CurrentStoryboardsCompleted();
         }
-
-        public static Storyboard StartExitAnimation(FrameworkElement animatedObject, double xDelta = 60, double yDelta = -20)
+        
+        public static Task StartEntryAnimation(FrameworkElement animatedObject, double xDelta = -40, double yDelta = 10)
         {
-            var translateTransform = animatedObject.RenderTransform as TranslateTransform;
-
-            if (translateTransform == null)
+            var tcs = new TaskCompletionSource<object>();
+            var root = GetAnimationRoot(animatedObject);
+            if (root != null)
             {
-                animatedObject.RenderTransform = translateTransform = new TranslateTransform(0, 0);
+                var storyboard = root.CreateEntryAnimation(animatedObject, xDelta, yDelta);
+                storyboard.Completed += (s, e) => tcs.TrySetResult(null);
+                GifRecorderManager.Instance.RegisterStoryboard(storyboard);
             }
 
-            var storyboard = new Storyboard();
-
-            var animationOpacity = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                To = 0,
-                EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut }
-            };
-
-            Storyboard.SetTarget(animationOpacity, animatedObject);
-            Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(UIElement.OpacityProperty));
-            storyboard.Children.Add(animationOpacity);
-
-            var animationX = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                By = xDelta,
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationX, animatedObject);
-            Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
-            storyboard.Children.Add(animationX);
-
-            var animationY = new DoubleAnimation
-            {
-                Duration = _exitDuration,
-                BeginTime = CalculateStagger(),
-                By = yDelta,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationY, animatedObject);
-            Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
-            storyboard.Children.Add(animationY);
-
-            GifRecorderManager.Instance.RegisterStoryboard(storyboard);
-
-            return storyboard;
+            return tcs.Task;
         }
 
-        public static Storyboard StartRepositionAnimation(FrameworkElement animatedObject, Vector offset)
+        public static Task StartExitAnimation(FrameworkElement animatedObject, double xDelta = 60, double yDelta = -20)
         {
-            var translateTransform = animatedObject.RenderTransform as TranslateTransform;
-
-            if (translateTransform == null)
+            var tcs = new TaskCompletionSource<object>();
+            var root = GetAnimationRoot(animatedObject);
+            if (root != null)
             {
-                animatedObject.RenderTransform = translateTransform = new TranslateTransform(-offset.X, -offset.Y);
+                var storyboard = root.CreateExitAnimation(animatedObject, xDelta, yDelta);
+                storyboard.Completed += (s, e) => tcs.SetResult(null);
+                GifRecorderManager.Instance.RegisterStoryboard(storyboard);
+            }
+
+            return tcs.Task;
+        }
+
+        public static Task StartRepositionAnimation(FrameworkElement animatedObject, Vector offset)
+        {
+            var tcs = new TaskCompletionSource<object>();
+            var root = GetAnimationRoot(animatedObject);
+            if (root != null)
+            {
+                var storyboard = root.CreateRepositionAnimation(animatedObject, offset);
+                storyboard.Completed += (s, e) => tcs.SetResult(null);
+                GifRecorderManager.Instance.RegisterStoryboard(storyboard);
+            }
+
+            return tcs.Task;
+        }
+
+        private static void IsAnimationRootPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue)
+            {
+                SetAnimationRoot(sender, new AnimationManagerCore());
             }
             else
             {
-                translateTransform.SetCurrentValue(TranslateTransform.XProperty, translateTransform.X - offset.X);
-                translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.Y - offset.Y);
+                sender.ClearValue(AnimationRootProperty);
+            }
+        }
+
+        private static void AnimationDelayPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            var root = GetAnimationRoot(sender);
+            if (root != null)
+            {
+                root.Delay = TimeSpan.FromMilliseconds((double)e.NewValue);
+            }
+        }
+
+        private static AnimationManagerCore GetAnimationRoot(DependencyObject source)
+        {
+            return (AnimationManagerCore)source.GetValue(AnimationRootProperty);
+        }
+
+        private static void SetAnimationRoot(DependencyObject target, AnimationManagerCore value)
+        {
+            target.SetValue(AnimationRootProperty, value);
+        }
+
+        private class AnimationManagerCore
+        {
+            private static readonly Duration _exitDuration = new Duration(TimeSpan.FromMilliseconds(1300));
+            private static readonly Duration _repositionDuration = new Duration(TimeSpan.FromMilliseconds(1300));
+            private static readonly TimeSpan _initialStagger = TimeSpan.FromMilliseconds(10);
+            private static readonly TimeSpan _stagger = TimeSpan.FromMilliseconds(50);
+
+            private DateTime _lastAnimationTime = DateTime.MinValue;
+            private TimeSpan _currentStagger;
+
+            public TimeSpan Delay { get; set; }
+
+            private TimeSpan CalculateStagger()
+            {
+                if (DateTime.UtcNow - _lastAnimationTime > _stagger)
+                {
+                    _isInitialBatch = _lastAnimationTime == DateTime.MinValue;
+                    _currentStagger = Delay;
+                }
+                else
+                {
+                    _currentStagger = _currentStagger + (_isInitialBatch ? _initialStagger : _stagger);
+                }
+
+                _lastAnimationTime = DateTime.UtcNow;
+                return _currentStagger;
             }
 
-            var storyboard = new Storyboard();
-
-            var animationX = new DoubleAnimation
+            public Storyboard CreateEntryAnimation(FrameworkElement animatedObject, double xDelta, double yDelta)
             {
-                Duration = _repositionDuration,
-                BeginTime = CalculateStagger(),
-                To = 0,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
+                var translateTransform = animatedObject.RenderTransform as TranslateTransform;
 
-            if (translateTransform.X == 0)
+                animatedObject.Opacity = 0.0;
+                animatedObject.SetCurrentValue(FrameworkElement.OpacityProperty, 0.0);
+
+                if (translateTransform == null)
+                {
+                    animatedObject.RenderTransform = translateTransform = new TranslateTransform(xDelta, yDelta);
+                }
+                else
+                {
+                    translateTransform.SetCurrentValue(TranslateTransform.XProperty, translateTransform.X + xDelta);
+                    translateTransform.SetCurrentValue(TranslateTransform.YProperty, translateTransform.X + yDelta);
+                }
+
+                var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop };
+
+                var animationOpacity = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    From = 0,
+                    To = 1,
+                    EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationOpacity, animatedObject);
+                Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(UIElement.OpacityProperty));
+                storyboard.Children.Add(animationOpacity);
+
+                var animationX = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    To = 0,                    
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationX, animatedObject);
+                Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
+                storyboard.Children.Add(animationX);
+
+                var animationY = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    To = 0,
+                    EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationY, animatedObject);
+                Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+                storyboard.Children.Add(animationY);
+
+                storyboard.Completed += (s, e) =>
+                {
+                    animatedObject.Opacity = 1.0;
+                    translateTransform.X = translateTransform.X;
+                    translateTransform.Y = translateTransform.Y;
+                };
+
+                return storyboard;
+            }
+
+            public Storyboard CreateExitAnimation(FrameworkElement animatedObject, double xDelta, double yDelta)
             {
-                animationX = new DoubleAnimation
+                var translateTransform = animatedObject.RenderTransform as TranslateTransform;
+
+                if (translateTransform == null)
+                {
+                    animatedObject.RenderTransform = translateTransform = new TranslateTransform(0, 0);
+                }
+
+                var storyboard = new Storyboard();
+
+                var animationOpacity = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    To = 0,
+                    EasingFunction = new CircleEase { EasingMode = EasingMode.EaseInOut }
+                };
+
+                Storyboard.SetTarget(animationOpacity, animatedObject);
+                Storyboard.SetTargetProperty(animationOpacity, new PropertyPath(UIElement.OpacityProperty));
+                storyboard.Children.Add(animationOpacity);
+
+                var animationX = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    By = xDelta,
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationX, animatedObject);
+                Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
+                storyboard.Children.Add(animationX);
+
+                var animationY = new DoubleAnimation
+                {
+                    Duration = _exitDuration,
+                    BeginTime = CalculateStagger(),
+                    By = yDelta,
+                    EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationY, animatedObject);
+                Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+                storyboard.Children.Add(animationY);
+
+                return storyboard;
+            }
+
+            public Storyboard CreateRepositionAnimation(FrameworkElement animatedObject, Vector offset)
+            {
+                var translateTransform = animatedObject.RenderTransform as TranslateTransform;
+
+                if (translateTransform == null)
+                {
+                    animatedObject.RenderTransform = translateTransform = new TranslateTransform(-offset.X, -offset.Y);
+                }
+                else
+                {
+                    translateTransform.X = translateTransform.X - offset.X;
+                    translateTransform.Y = translateTransform.Y - offset.Y;
+                }
+
+                var storyboard = new Storyboard { FillBehavior = FillBehavior.Stop };
+
+                var animationX = new DoubleAnimation
                 {
                     Duration = _repositionDuration,
                     BeginTime = CalculateStagger(),
-                    To = translateTransform.Y / 4 + Math.Sign(translateTransform.Y) * animatedObject.ActualWidth,
-                    AccelerationRatio = .5,
-                    DecelerationRatio = .5,
-                    SpeedRatio = 2,
-                    AutoReverse = true,
+                    To = 0,
+                    EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
                 };
+
+                if (translateTransform.X == 0)
+                {
+                    animationX = new DoubleAnimation
+                    {
+                        Duration = _repositionDuration,
+                        BeginTime = CalculateStagger(),
+                        From = 0,
+                        To = translateTransform.Y / 4 + Math.Sign(translateTransform.Y) * animatedObject.ActualWidth,
+                        AccelerationRatio = .5,
+                        DecelerationRatio = .5,
+                        SpeedRatio = 2,
+                        AutoReverse = true,
+                    };
+                }
+
+                Storyboard.SetTarget(animationX, animatedObject);
+                Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
+                storyboard.Children.Add(animationX);
+
+                var animationY = new DoubleAnimation
+                {
+                    Duration = _repositionDuration,
+                    BeginTime = CalculateStagger(),
+                    To = 0,
+                    EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
+                };
+
+                Storyboard.SetTarget(animationY, animatedObject);
+                Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+                storyboard.Children.Add(animationY);
+
+                storyboard.Completed += (s, e) =>
+                {
+                    animatedObject.Opacity = 1.0;
+                    translateTransform.X = translateTransform.X;
+                    translateTransform.Y = translateTransform.Y;
+                };
+
+                return storyboard;
             }
-
-            Storyboard.SetTarget(animationX, animatedObject);
-            Storyboard.SetTargetProperty(animationX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
-            storyboard.Children.Add(animationX);
-
-            var animationY = new DoubleAnimation
-            {
-                Duration = _repositionDuration,
-                BeginTime = CalculateStagger(),
-                To = 0,
-                EasingFunction = new ExponentialEase { EasingMode = EasingMode.EaseOut }
-            };
-
-            Storyboard.SetTarget(animationY, animatedObject);
-            Storyboard.SetTargetProperty(animationY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
-            storyboard.Children.Add(animationY);
-
-            GifRecorderManager.Instance.RegisterStoryboard(storyboard);
-
-            return storyboard;
         }
     }
 }

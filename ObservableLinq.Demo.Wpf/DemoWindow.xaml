@@ -4,6 +4,8 @@
         Title="Demo1"
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
+        xmlns:local="clr-namespace:ObservableLinq.Demo.Wpf"
+        local:AnimationManager.IsAnimationRoot="true"
         xmlns:mec="http://schemas.microsoft.com/expression/2010/drawing">
     <Grid x:Name="Root" Background="White">
         <Grid Margin="15" Grid.IsSharedSizeScope="True">
@@ -11,22 +13,50 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <ItemsControl ItemsSource="{Binding Collection}"
-                     Grid.Column="0"
-                     Margin="0,0,50,0"
-                     HorizontalAlignment="Left" />
-            <mec:Callout Grid.Column="1"
-                         x:Name="Callout"
-                         VerticalAlignment="Top" 
-                         Height="90" 
-                         Background="Beige" 
-                         Stroke="Black" 
-                         StrokeThickness="3" 
-                         Opacity="0"
-                         Fill="Bisque" 
-                         AnchorPoint="-0.2, 0.8">
-                <TextBlock Margin="10" Text="This is our source collection" FontSize="16" TextWrapping="Wrap" />
-            </mec:Callout>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Column="0"
+                  local:AnimationManager.IsAnimationRoot="True"
+                  local:AnimationManager.AnimationDelay="500">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <TextBlock x:Name="SourceLabel" Opacity="0.0" Text="Original" FontWeight="Bold" Margin="40,20" />
+
+                <ItemsControl ItemsSource="{Binding Collection}"
+                          Grid.Column="0"
+                          Grid.Row="1"
+                          HorizontalAlignment="Center" />
+            </Grid>
+
+            <Grid Grid.Column="1"
+                  local:AnimationManager.IsAnimationRoot="True"
+                  local:AnimationManager.AnimationDelay="1500">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="TargetLabel" Opacity="0.0" Grid.Column="1" Text="Projected" FontWeight="Bold" Margin="40,20" />
+
+                <ItemsControl ItemsSource="{Binding Observer}"
+                          Grid.Column="1"
+                          Grid.Row="1"
+                          HorizontalAlignment="Center" />
+
+            </Grid>
+            
+            <Grid Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0,20,0,0">
+                <TextBlock x:Name="Label1" HorizontalAlignment="Center" Opacity="0.0" Text="Projected = Original.Select(x => x * x)" />
+                <TextBlock x:Name="Label2" HorizontalAlignment="Center" Opacity="0.0" Text="Original.RemoveAt(3)" />
+                <TextBlock x:Name="Label3" HorizontalAlignment="Center" Opacity="0.0" Text="Original.Insert(0, 4)" />
+                <TextBlock x:Name="Label4" HorizontalAlignment="Center" Opacity="0.0" Text="Original.Move(0, 3)" />
+            </Grid>
         </Grid>
     </Grid>
 </Window>
