@@ -17,13 +17,18 @@ Using ObservableLinq not only allows you to project your model into view models,
 
 ### Change between different views of the same collection
 
-ObservableLinq provides a special collection, called ObserverCollection. This collection can be instructed to follow an observable collection. However, ObserverCollection can change from one observed collection to another at any time. All items present in both collections will be retained and moved to their new position.
+ObservableLinq provides a special collection class, called ObserverCollection. This collection can be instructed to follow a different observable collection. However, ObserverCollection can change from one observed collection to another at any time. Items present in both will be retained and moved to their new position.
 
 Let's consider our personal data view models from before. We can project that collection into one where we sort by first name and another one where we sort by last name. Maybe another one, where we filter out unchanged items. Then, we bind our datagrid to an observer collection that switches between these collections according to user input...
 
+### Display all these visually to the user
+
+The basic modification events on the ICollectionChanged interface can be translated into animations like in the figure above, which results in a user interface that is both appealing and gives plenty of visual clues to the user in order to correctly understand the underlying data manipulation.
+
 ## Current state
 
- - ObservableCollection
+ - "Alpha" state
+ - Functioning ObserverCollection
  - Select, Distinct, Where, OrderBy operators *mostly* ready
 
 ## License
@@ -32,7 +37,7 @@ Let's consider our personal data view models from before. We can project that co
 
 ## Contributions
 
-They're welcome - more to come
+Pull requests are welcome. In order to be accepted, the functionality has to be unit tested against the static Linq operators.
 
 [nuget]: https://www.nuget.org/
 [LINQ]: http://msdn.microsoft.com/en-us/library/bb397926.aspx
