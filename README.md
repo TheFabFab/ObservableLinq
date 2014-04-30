@@ -9,7 +9,7 @@ ObservableLinq is an open source, portable class library that can be easily depl
 
 ### Project data between different domains
 
-Larger applications are often architectured in a layered manner (3-tier application, MVVM, etc.) The different domains can add new attributes, filters and sort criteria to your data.
+Larger applications are often architectured in multiple layers, across multiple tiers. The different layers can enrich data coming from another layer with new attributes, filters and sort criteria.
 
 Consider an editable data grid that contains personal data in an MVVM application. The model class will contain records with first name, last name, etc. Your view model might wrap the model object and have additional attributes, like 'IsEditing' and 'IsChanged'. Your UI layer will transform the view model into rows in the datagrid.
 
@@ -21,7 +21,7 @@ ObservableLinq provides a special collection class, called ObserverCollection. T
 
 Let's consider our personal data view models from before. We can project that collection into one where we sort by first name and another one where we sort by last name. Maybe another one, where we filter out unchanged items. Then, we bind our datagrid to an observer collection that switches between these collections according to user input...
 
-### Display all these visually to the user
+### Display changes visually to the user
 
 The basic modification events on the ICollectionChanged interface can be translated into animations like in the figure above, which results in a user interface that is both appealing and gives plenty of visual clues to the user in order to correctly understand the underlying data manipulation.
 
